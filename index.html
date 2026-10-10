@@ -7,6 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* إعدادات مخصصة لطباعة ماكينة الريسيت الحرارية (عرض 80 مم) */
         @media print {
             body * {
                 visibility: hidden !important;
@@ -22,7 +23,14 @@
                 position: absolute !important;
                 left: 0 !important;
                 top: 0 !important;
-                width: 100% !important;
+                width: 76mm !important; /* مقاس مناسب لورق الريسيت */
+                font-family: 'Courier New', Courier, monospace !important;
+                color: #000 !important;
+                background: #fff !important;
+            }
+            @page {
+                size: 80mm auto;
+                margin: 0mm;
             }
         }
         .tab-btn.active {
@@ -184,49 +192,46 @@
         </div>
     </div>
 
-    <!-- منطقة طباعة الأوردرات -->
-    <div id="printArea" style="display: none;" class="font-sans p-2">
-        <div style="page-break-after: always; text-align: center; border-bottom: 2px dashed #000; padding-bottom: 20px;">
-            <h2 style="font-size: 20px; font-weight: bold;">مطعم كبده ومخ الشرقاوي</h2>
-            <p style="font-size: 12px;" id="pCustomerMeta"></p>
-            <hr style="margin: 10px 0;">
-            <div id="pCustomerItems" style="text-align: right; font-size: 13px;"></div>
-            <hr style="margin: 10px 0;">
-            <h3 style="font-size: 16px; font-weight: bold;" id="pCustomerTotal"></h3>
-            <p style="font-size: 10px; margin-top: 10px;">شكراً لزيارتكم الشرقاوي 🥩</p>
-        </div>
-        <div style="text-align: center; padding-top: 20px;">
-            <h2 style="font-size: 22px; font-weight: bold;">[ بون المطبخ 👨‍🍳 ]</h2>
-            <p style="font-size: 14px; font-weight: bold;" id="pKitchenMeta"></p>
-            <hr style="margin: 10px 0;">
-            <div id="pKitchenItems" style="text-align: right; font-size: 16px; font-weight: bold;"></div>
+    <!-- نموذج ريسيت الفاتورة (مصمم لمقاس 80 مم) -->
+    <div id="printArea" style="display: none; width: 72mm; font-size: 12px; line-height: 1.4; padding: 2mm;">
+        <div style="text-align: center; font-weight: bold; font-size: 15px; margin-bottom: 2px;">مطعم كبده ومخ الشرقاوي</div>
+        <div style="text-align: center; font-size: 11px; margin-bottom: 5px;">بالهنا والشفا 🥩</div>
+        <div style="border-bottom: 1px dashed #000; padding-bottom: 4px; margin-bottom: 4px; font-size: 11px;" id="pCustomerMeta"></div>
+        
+        <div id="pCustomerItems" style="font-size: 12px; margin-bottom: 4px;"></div>
+        
+        <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 4px 0; margin-top: 4px; font-weight: bold; font-size: 14px; text-align: left;" id="pCustomerTotal"></div>
+        
+        <div style="text-align: center; font-size: 10px; margin-top: 6px;">شكراً لزيارتكم الشرقاوي</div>
+        
+        <div style="border-top: 2px dashed #000; margin-top: 10px; padding-top: 8px;">
+            <div style="text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 4px;">[ بون المطبخ 👨‍🍳 ]</div>
+            <div style="font-size: 11px; margin-bottom: 4px;" id="pKitchenMeta"></div>
+            <div style="font-size: 13px; font-weight: bold;" id="pKitchenItems"></div>
         </div>
     </div>
 
-    <!-- منطقة طباعة إيصال ترحيل الخزنة -->
-    <div id="printTreasuryArea" style="display: none;" class="font-sans p-4 text-center">
-        <h2 style="font-size: 20px; font-weight: bold;">مطعم كبده ومخ الشرقاوي 🥩</h2>
-        <h3 style="font-size: 16px; font-weight: bold; margin-top: 5px;">[ إيصال تصفية وترحيل الخزنة 🏦 ]</h3>
-        <p style="font-size: 11px; margin-top: 5px;" id="tPrintTime"></p>
-        <hr style="margin: 12px 0; border-top: 1px dashed #000;">
-        <div style="text-align: right; font-size: 14px; line-height: 1.8;">
-            <div style="display: flex; justify-content: space-between;">
+    <!-- نموذج ريسيت ترحيل الخزنة (مصمم لمقاس 80 مم) -->
+    <div id="printTreasuryArea" style="display: none; width: 72mm; font-size: 12px; line-height: 1.4; padding: 2mm; text-align: center;">
+        <div style="font-weight: bold; font-size: 15px; margin-bottom: 2px;">مطعم كبده ومخ الشرقاوي 🥩</div>
+        <div style="font-weight: bold; font-size: 13px; margin-bottom: 4px;">[ إيصال تصفية وترحيل الخزنة 🏦 ]</div>
+        <div style="font-size: 10px; margin-bottom: 6px;" id="tPrintTime"></div>
+        <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 6px 0; text-align: right; font-size: 12px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
                 <span>إجمالي الوارد (المبيعات):</span>
-                <strong id="tPrintIn">0 جنيه</strong>
+                <strong id="tPrintIn">0</strong>
             </div>
-            <div style="display: flex; justify-content: space-between;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
                 <span>إجمالي الصادر (المصروفات):</span>
-                <strong id="tPrintOut">0 جنيه</strong>
+                <strong id="tPrintOut">0</strong>
             </div>
-            <hr style="margin: 8px 0; border-top: 1px solid #ccc;">
-            <div style="display: flex; justify-content: space-between; font-size: 16px;">
-                <span>الربح الفعلي / المبلغ المرحّل:</span>
-                <strong id="tPrintBalance" style="color: #000;">0 جنيه</strong>
+            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 13px; border-top: 1px solid #000; padding-top: 3px; margin-top: 3px;">
+                <span>الربح الفعلي المرحّل:</span>
+                <strong id="tPrintBalance">0</strong>
             </div>
         </div>
-        <hr style="margin: 12px 0; border-top: 1px dashed #000;">
-        <p style="font-size: 11px;">تمت التصفية وسحب الأرباح بنجاح ✔️</p>
-        <p style="font-size: 10px; margin-top: 3px;">التوقيع: ..........................</p>
+        <div style="font-size: 11px; margin-top: 8px;">تمت التصفية وسحب الأرباح بنجاح ✔️</div>
+        <div style="font-size: 10px; margin-top: 10px; text-align: right;">التوقيع: ..........................</div>
     </div>
 
     <script>
@@ -303,7 +308,6 @@
         let currentCart = [];
 
         function doLogin() {
-            // تخطي التحقق المعقد بكلمة المرور المشفرة للمتصفح والدخول المباشر بسلسلة بسيطة وآمنة
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('appScreen').classList.remove('hidden');
             switchTab('sandwiches');
@@ -454,12 +458,24 @@
             document.getElementById('printArea').style.display = 'block';
 
             const dateStr = new Date().toLocaleString('ar-EG');
-            document.getElementById('pCustomerMeta').innerText = `العميل: ${customer} | التاريخ: ${dateStr}`;
-            document.getElementById('pCustomerItems').innerHTML = items.map(i => `<div>${i.name} × ${i.qty} = ${i.price * i.qty} ج</div>`).join('');
-            document.getElementById('pCustomerTotal').innerText = `الإجمالي الكلي: ${total} جنيه`;
+            document.getElementById('pCustomerMeta').innerHTML = `العميل: ${customer}<br>التاريخ: ${dateStr}`;
+            
+            document.getElementById('pCustomerItems').innerHTML = items.map(i => `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                    <span>${i.name} (×${i.qty})</span>
+                    <span>${i.price * i.qty} ج</span>
+                </div>
+            `).join('');
+            
+            document.getElementById('pCustomerTotal').innerHTML = `
+                <div style="display: flex; justify-content: space-between;">
+                    <span>الإجمالي:</span>
+                    <span>${total} جنيه</span>
+                </div>
+            `;
 
-            document.getElementById('pKitchenMeta').innerText = `طاولة/عميل: ${customer} | الوقت: ${new Date().toLocaleTimeString('ar-EG')}`;
-            document.getElementById('pKitchenItems').innerHTML = items.map(i => `<div>▫️ ${i.name} (عدد: ${i.qty})</div>`).join('');
+            document.getElementById('pKitchenMeta').innerHTML = `العميل: ${customer} | الوقت: ${new Date().toLocaleTimeString('ar-EG')}`;
+            document.getElementById('pKitchenItems').innerHTML = items.map(i => `<div>▪️ ${i.name} (${i.qty})</div>`).join('');
 
             window.print();
         }
@@ -613,10 +629,10 @@
             document.getElementById('printArea').style.display = 'none';
             document.getElementById('printTreasuryArea').style.display = 'block';
 
-            document.getElementById('tPrintTime').innerText = `التاريخ والوقت: ${new Date().toLocaleString('ar-EG')}`;
-            document.getElementById('tPrintIn').innerText = `${lastTreasuryData.totalIn} جنيه`;
-            document.getElementById('tPrintOut').innerText = `${lastTreasuryData.totalOut} جنيه`;
-            document.getElementById('tPrintBalance').innerText = `${lastTreasuryData.balance} جنيه`;
+            document.getElementById('tPrintTime').innerText = `التاريخ: ${new Date().toLocaleString('ar-EG')}`;
+            document.getElementById('tPrintIn').innerText = `${lastTreasuryData.totalIn} ج`;
+            document.getElementById('tPrintOut').innerText = `${lastTreasuryData.totalOut} ج`;
+            document.getElementById('tPrintBalance').innerText = `${lastTreasuryData.balance} ج`;
 
             window.print();
 
