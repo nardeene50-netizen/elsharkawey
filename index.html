@@ -3,84 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>كبده ومخ الشرقاوي - نظام الإدارة المتقدم</title>
+    <title>مطعم كبده ومخ الشرقاوي - كاشير</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @media print {
             body * { visibility: hidden; }
-            #printSection, #printSection * { visibility: visible; }
-            #printSection { position: absolute; left: 0; top: 0; width: 100%; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+        .tab-btn.active {
+            background-color: #dc2626;
+            color: white;
+            border-color: #dc2626;
         }
     </style>
 </head>
-<body class="bg-gray-100 font-sans p-4">
+<body class="bg-gray-100 font-sans p-3">
 
     <!-- شاشة تسجيل الدخول -->
     <div id="loginScreen" class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg mt-20">
-        <h1 class="text-2xl font-bold text-center text-red-700 mb-6">تسجيل دخول مطعم الشرقاوي 🥩</h1>
+        <h1 class="text-2xl font-bold text-center text-red-700 mb-6">تسجيل دخول كاشير الشرقاوي 🥩</h1>
         <div class="mb-4">
             <label class="block text-gray-700 mb-2 font-bold">اسم المستخدم</label>
-            <input type="text" id="username" placeholder="اكتب اسم المستخدم" class="w-full p-3 border rounded">
+            <input type="text" id="username" placeholder="اسم المستخدم" class="w-full p-3 border rounded">
         </div>
         <div class="mb-6">
             <label class="block text-gray-700 mb-2 font-bold">كلمة المرور</label>
-            <input type="password" id="password" placeholder="اكتب كلمة المرور" class="w-full p-3 border rounded">
+            <input type="password" id="password" placeholder="كلمة المرور" class="w-full p-3 border rounded">
         </div>
         <button onclick="handleLogin()" class="w-full bg-red-600 text-white p-3 rounded font-bold hover:bg-red-700">دخول للسيستم</button>
-        <p id="loginError" class="text-red-500 text-center mt-3 text-sm hidden">اسم المستخدم أو كلمة المرور غير صحيحة!</p>
+        <p id="loginError" class="text-red-500 text-center mt-3 text-sm hidden">بيانات الدخول غير صحيحة!</p>
     </div>
 
-    <!-- لوحة التحكم والسيستم -->
-    <div id="appScreen" class="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-lg hidden">
-        <div class="flex justify-between items-center mb-6 border-b pb-4">
+    <!-- شاشة نظام الكاشير والطلبات -->
+    <div id="appScreen" class="max-w-7xl mx-auto bg-white p-4 rounded-lg shadow-lg hidden">
+        <!-- شريط علوي -->
+        <div class="flex justify-between items-center mb-4 border-b pb-3">
             <h1 class="text-2xl font-bold text-red-700">مطعم كبده ومخ الشرقاوي 🥩🧠</h1>
-            <div class="flex items-center gap-4">
-                <button onclick="showSalesReport()" class="bg-blue-600 text-white px-4 py-2 rounded font-bold hover:bg-blue-700">📊 تقرير مبيعات اليوم</button>
-                <button onclick="handleLogout()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded font-bold hover:bg-gray-400">خروج</button>
+            <div class="flex items-center gap-3">
+                <button onclick="showSalesReport()" class="bg-blue-600 text-white px-3 py-1.5 rounded font-bold hover:bg-blue-700 text-sm">📊 تقرير المبيعات</button>
+                <button onclick="handleLogout()" class="bg-gray-300 text-gray-800 px-3 py-1.5 rounded font-bold hover:bg-gray-400 text-sm">خروج</button>
             </div>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- قسم المنيو السريع -->
-            <div class="bg-gray-50 p-4 rounded border">
-                <h2 class="text-lg font-bold mb-3 text-gray-800">الأصناف السريعة (اضغط للإضافة)</h2>
-                <div class="grid grid-cols-2 gap-2 mb-4">
-                    <button onclick="addToCart('سندوتش كبدة', 25)" class="bg-red-100 border border-red-300 p-3 rounded text-right hover:bg-red-200 font-bold text-red-800">
-                        سندوتش كبدة <span class="block text-sm text-gray-600">25 ج</span>
-                    </button>
-                    <button onclick="addToCart('سندوتش مخ', 30)" class="bg-red-100 border border-red-300 p-3 rounded text-right hover:bg-red-200 font-bold text-red-800">
-                        سندوتش مخ <span class="block text-sm text-gray-600">30 ج</span>
-                    </button>
-                    <button onclick="addToCart('سندوتش كبده ومخ', 35)" class="bg-red-100 border border-red-300 p-3 rounded text-right hover:bg-red-200 font-bold text-red-800">
-                        كبده ومخ <span class="block text-sm text-gray-600">35 ج</span>
-                    </button>
-                    <button onclick="addToCart('طاسة كبدة وسجق', 70)" class="bg-red-100 border border-red-300 p-3 rounded text-right hover:bg-red-200 font-bold text-red-800">
-                        طاسة كبدة وسجق <span class="block text-sm text-gray-600">70 ج</span>
-                    </button>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            
+            <!-- قسم المنيو والأقسام (8 أعمدة) -->
+            <div class="lg:col-span-7 bg-gray-50 p-3 rounded border">
+                <!-- أزرار الأقسام الرئيسية -->
+                <div class="flex gap-1 overflow-x-auto pb-2 mb-3 border-b text-sm font-bold">
+                    <button onclick="switchTab('sandwiches')" id="tab-sandwiches" class="tab-btn active px-3 py-2 rounded bg-white border whitespace-nowrap">🥪 سندوتشات</button>
+                    <button onclick="switchTab('crepes')" id="tab-crepes" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🌮 كريبات</button>
+                    <button onclick="switchTab('meals')" id="tab-meals" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🍱 وجبات</button>
+                    <button onclick="switchTab('pizza_italy')" id="tab-pizza_italy" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🍕 بيتزا إيطالي</button>
+                    <button onclick="switchTab('pizza_oriental')" id="tab-pizza_oriental" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🥘 بيتزا شرقي</button>
+                    <button onclick="switchTab('fateer_salty')" id="tab-fateer_salty" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🫓 فطير حادق</button>
+                    <button onclick="switchTab('fateer_sweet')" id="tab-fateer_sweet" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🍯 فطير حلو</button>
                 </div>
 
-                <h2 class="text-lg font-bold mb-2 text-gray-800">تفاصيل الطلب الحالي</h2>
-                <input type="text" id="customerName" placeholder="اسم العميل أو رقم الطاولة (مثلاً: طاولة 1)" class="w-full p-2 border rounded mb-3">
-                <div id="cartItems" class="bg-white p-3 border rounded mb-3 min-h-[80px] max-h-[150px] overflow-y-auto text-sm">
-                    <span class="text-gray-400">لم يتم اختيار أصناف بعد...</span>
-                </div>
-                <div class="flex justify-between items-center mb-3 font-bold text-lg">
-                    <span>الإجمالي:</span>
-                    <span id="cartTotal" class="text-red-600">0 جنيه</span>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="submitOrder()" class="flex-1 bg-green-600 text-white p-3 rounded font-bold hover:bg-green-700">حفظ وإرسال الطلب</button>
-                    <button onclick="clearCart()" class="bg-gray-400 text-white px-4 rounded font-bold hover:bg-gray-500">مسح</button>
+                <!-- شبكة أصناف القسم المختار -->
+                <div id="itemsGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[450px] overflow-y-auto p-1">
+                    <!-- تتغير تلقائياً حسب القسم -->
                 </div>
             </div>
 
-            <!-- قسم الطلبات الحالية -->
-            <div class="bg-gray-50 p-4 rounded border">
-                <h2 class="text-lg font-bold mb-3 text-gray-800">الطلبات الحالية</h2>
-                <div id="ordersList" class="space-y-3 max-h-[420px] overflow-y-auto">
-                    <p class="text-gray-500">جاري تحميل الطلبات...</p>
+            <!-- قسم تفاصيل الطلب والفاتورة (5 أعمدة) -->
+            <div class="lg:col-span-5 bg-gray-50 p-3 rounded border flex flex-col justify-between">
+                <div>
+                    <h2 class="text-lg font-bold mb-2 text-gray-800 border-b pb-1">تفاصيل الأوردر الحالى</h2>
+                    <input type="text" id="customerName" placeholder="اسم العميل / رقم الطاولة" class="w-full p-2 border rounded mb-2 text-sm">
+                    
+                    <div id="cartItems" class="bg-white p-2 border rounded mb-2 min-h-[160px] max-h-[220px] overflow-y-auto text-sm">
+                        <span class="text-gray-400">اختر الأصناف من القائمة...</span>
+                    </div>
                 </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-3 bg-red-50 p-2 rounded border border-red-200 font-bold text-lg">
+                        <span>إجمالي الحساب:</span>
+                        <span id="cartTotal" class="text-red-700">0 جنيه</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="submitOrder()" class="bg-green-600 text-white p-2.5 rounded font-bold hover:bg-green-700 text-sm">حفظ وطباعة الريسيت 🖨️</button>
+                        <button onclick="clearCart()" class="bg-gray-400 text-white p-2.5 rounded font-bold hover:bg-gray-500 text-sm">إلغاء الأوردر</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- قائمة الطلبات المسجلة -->
+        <div class="mt-4 bg-gray-50 p-3 rounded border">
+            <h2 class="text-md font-bold mb-2 text-gray-800">آخر الطلبات المسجلة</h2>
+            <div id="ordersList" class="space-y-2 max-h-[200px] overflow-y-auto">
+                <p class="text-gray-500 text-sm">جاري التحميل...</p>
             </div>
         </div>
     </div>
@@ -94,176 +112,17 @@
         </div>
     </div>
 
-    <!-- قسم الطباعة المخفي -->
-    <div id="printSection" class="hidden p-6 bg-white text-black font-sans">
-        <div class="text-center border-b pb-4 mb-4">
-            <h2 class="text-xl font-bold">مطعم كبده ومخ الشرقاوي</h2>
-            <p id="printReceiptMeta" class="text-sm"></p>
+    <!-- منطقة الطباعة المزدوجة (ريسيت العميل + بون المطبخ) -->
+    <div id="printArea" class="hidden font-sans p-2">
+        <!-- ريسيت العميل -->
+        <div style="page-break-after: always; text-align: center; border-bottom: 2px dashed #000; padding-bottom: 20px;">
+            <h2 style="font-size: 20px; font-weight: bold;">مطعم كبده ومخ الشرقاوي</h2>
+            <p style="font-size: 12px;" id="pCustomerMeta"></p>
+            <hr style="margin: 10px 0;">
+            <div id="pCustomerItems" style="text-align: right; font-size: 13px;"></div>
+            <hr style="margin: 10px 0;">
+            <h3 style="font-size: 16px; font-weight: bold;" id="pCustomerTotal"></h3>
+            <p style="font-size: 10px; margin-top: 10px;">شكراً لزيارتكم الشرقاوي 🥩</p>
         </div>
-        <div id="printReceiptBody" class="mb-4 text-sm"></div>
-        <div class="text-center border-t pt-2 font-bold text-base" id="printReceiptTotal"></div>
-    </div>
 
-    <script>
-        const SUPABASE_URL = 'https://lgwpqauwpzyvnyozkskn.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_lVZCBA_yIAQUM_H3_VCDkw_TpLOo8nK';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        const ADMIN_USER = "elsharkawey";
-        const ADMIN_PASS = "123456";
-
-        let currentCart = [];
-
-        function handleLogin() {
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
-            if (user === ADMIN_USER && pass === ADMIN_PASS) {
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('appScreen').classList.remove('hidden');
-                fetchOrders();
-            } else {
-                document.getElementById('loginError').classList.remove('hidden');
-            }
-        }
-
-        function handleLogout() {
-            document.getElementById('appScreen').classList.add('hidden');
-            document.getElementById('loginScreen').classList.remove('hidden');
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-        }
-
-        function addToCart(name, price) {
-            const existing = currentCart.find(item => item.name === name);
-            if (existing) {
-                existing.qty += 1;
-            } else {
-                currentCart.push({ name, price, qty: 1 });
-            }
-            updateCartUI();
-        }
-
-        function updateCartUI() {
-            const cartDiv = document.getElementById('cartItems');
-            const totalDiv = document.getElementById('cartTotal');
-            if (currentCart.length === 0) {
-                cartDiv.innerHTML = '<span class="text-gray-400">لم يتم اختيار أصناف بعد...</span>';
-                totalDiv.innerText = '0 جنيه';
-                return;
-            }
-            let total = 0;
-            cartDiv.innerHTML = currentCart.map((item, index) => {
-                let itemTotal = item.price * item.qty;
-                total += itemTotal;
-                return `<div class="flex justify-between items-center mb-1 border-b pb-1">
-                    <span>${item.name} (x${item.qty})</span>
-                    <div class="flex items-center gap-2">
-                        <span class="font-bold">${itemTotal} ج</span>
-                        <button onclick="removeFromCart(${index})" class="text-red-500 font-bold px-1">✕</button>
-                    </div>
-                </div>`;
-            }).join('');
-            totalDiv.innerText = total + ' جنيه';
-        }
-
-        function removeFromCart(index) {
-            currentCart.splice(index, 1);
-            updateCartUI();
-        }
-
-        function clearCart() {
-            currentCart = [];
-            document.getElementById('customerName').value = '';
-            updateCartUI();
-        }
-
-        async function fetchOrders() {
-            const { data, error } = await _supabase.from('orders').select('*').order('id', { ascending: false });
-            const listDiv = document.getElementById('ordersList');
-            if (error) {
-                listDiv.innerHTML = '<p class="text-red-500">خطأ في جلب الطلبات</p>';
-                return;
-            }
-            if (!data || data.length === 0) {
-                listDiv.innerHTML = '<p class="text-gray-500">لا توجد طلبات حالياً</p>';
-                return;
-            }
-            listDiv.innerHTML = data.map(o => {
-                let itemsText = '';
-                try {
-                    let parsed = typeof o.items === 'string' ? JSON.parse(o.items) : o.items;
-                    if (Array.isArray(parsed)) {
-                        itemsText = parsed.map(i => `${i.name} (x${i.qty})`).join('، ');
-                    } else {
-                        itemsText = o.items;
-                    }
-                } catch(e) {
-                    itemsText = o.items;
-                }
-                return `
-                <div class="p-3 border rounded bg-white shadow-sm flex justify-between items-center text-sm">
-                    <div>
-                        <strong>العميل:</strong> ${o.customer_name || 'بدون اسم'} <br>
-                        <strong>الطلب:</strong> ${itemsText} <br>
-                        <strong>الإجمالي:</strong> <span class="text-red-600 font-bold">${o.total_price} جنيه</span>
-                    </div>
-                    <div class="flex flex-col gap-1 items-end">
-                        <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded font-bold text-xs">${o.status || 'جديد'}</span>
-                        <button onclick='printReceipt(${JSON.stringify(o.customer_name || "بدون اسم")}, ${JSON.stringify(itemsText)}, ${o.total_price})' class="bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs font-bold">🖨️ طباعة</button>
-                    </div>
-                </div>
-            `}).join('');
-        }
-
-        async function submitOrder() {
-            const customer_name = document.getElementById('customerName').value || 'عميل عام';
-            if (currentCart.length === 0) {
-                alert('اختر بعض الأصناف أولاً!');
-                return;
-            }
-            let total_price = currentCart.reduce((sum, i) => sum + (i.price * i.qty), 0);
-            const itemsData = JSON.stringify(currentCart);
-
-            const { error } = await _supabase.from('orders').insert([{ 
-                customer_name: customer_name, 
-                items: itemsData, 
-                total_price: total_price,
-                status: 'جديد'
-            }]);
-
-            if (error) {
-                alert('خطأ أثناء الحفظ: ' + error.message);
-            } else {
-                clearCart();
-                fetchOrders();
-            }
-        }
-
-        function printReceipt(customer, items, total) {
-            document.getElementById('printReceiptMeta').innerText = `العميل: ${customer} - التاريخ: ${new Date().toLocaleDateString('ar-EG')}`;
-            document.getElementById('printReceiptBody').innerHTML = `<p><strong>الطلب:</strong> ${items}</p>`;
-            document.getElementById('printReceiptTotal').innerText = `الإجمالي الكلي: ${total} جنيه`;
-            window.print();
-        }
-
-        async function showSalesReport() {
-            const { data, error } = await _supabase.from('orders').select('*');
-            const modal = document.getElementById('salesModal');
-            const reportText = document.getElementById('salesReportText');
-            
-            if (error) {
-                reportText.innerText = 'حدث خطأ أثناء جلب التقارير';
-            } else {
-                let totalRevenue = data.reduce((sum, o) => sum + (parseFloat(o.total_price) || 0), 0);
-                let totalOrders = data.length;
-                reportText.innerHTML = `إجمالي عدد الطلبات المسجلة: <strong>${totalOrders}</strong><br>إجمالي الدخل المتوقع: <strong class="text-green-600">${totalRevenue} جنيه</strong>`;
-            }
-            modal.classList.remove('hidden');
-        }
-
-        function closeSalesReport() {
-            document.getElementById('salesModal').classList.add('hidden');
-        }
-    </script>
-</body>
-</html>
+        <!-- بون المطبخ -->
