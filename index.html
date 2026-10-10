@@ -36,7 +36,7 @@
             <label class="block text-gray-700 mb-2 font-bold">كلمة المرور</label>
             <input type="password" id="password" value="123456" placeholder="كلمة المرور" class="w-full p-3 border rounded">
         </div>
-        <button type="button" onclick="doLogin(event)" class="w-full bg-red-600 text-white p-3 rounded font-bold hover:bg-red-700">دخول للسيستم</button>
+        <button type="button" onclick="doLogin(event)" class="w-full bg-red-600 text-white p-3 rounded font-bold hover:bg-red-700 cursor-pointer">دخول للسيستم</button>
         <p id="loginError" class="text-red-500 text-center mt-3 text-sm hidden">خطأ في كلمة المرور!</p>
     </div>
 
@@ -46,8 +46,8 @@
             <h2 class="text-xl font-bold mb-3 text-gray-800 text-center">🔐 إدارة حركة الخزنة</h2>
             <p class="text-sm text-gray-600 mb-4 text-center">هذا القسم محمي بكلمة مرور خاصة بالإدارة فقط</p>
             <input type="password" id="adminPasswordInput" placeholder="اكتب كلمة مرور الإدارة" class="w-full p-3 border rounded mb-3 text-center text-lg">
-            <button type="button" onclick="verifyAdminPassword()" class="w-full bg-red-700 text-white p-2.5 rounded font-bold hover:bg-red-800 mb-2">دخول للخزنة</button>
-            <button type="button" onclick="closeAdminAuth()" class="w-full bg-gray-300 text-gray-700 p-2 rounded font-bold hover:bg-gray-400 text-sm">إلغاء</button>
+            <button type="button" onclick="verifyAdminPassword()" class="w-full bg-red-700 text-white p-2.5 rounded font-bold hover:bg-red-800 mb-2 cursor-pointer">دخول للخزنة</button>
+            <button type="button" onclick="closeAdminAuth()" class="w-full bg-gray-300 text-gray-700 p-2 rounded font-bold hover:bg-gray-400 text-sm cursor-pointer">إلغاء</button>
             <p id="adminAuthError" class="text-red-500 text-center mt-2 text-xs hidden">كلمة مرور الإدارة غير صحيحة!</p>
         </div>
     </div>
@@ -59,11 +59,11 @@
             <h1 class="text-2xl font-bold text-red-700">مطعم كبده ومخ الشرقاوي 🥩🧠</h1>
             <div class="flex items-center gap-2 flex-wrap">
                 <div class="flex bg-gray-200 p-1 rounded font-bold text-sm">
-                    <button type="button" onclick="switchMainView('pos')" id="mainTabPos" class="main-tab active px-3 py-1.5 rounded transition">🛒 الكاشير والطلبات</button>
-                    <button type="button" onclick="switchMainView('expenses')" id="mainTabExpenses" class="main-tab px-3 py-1.5 rounded transition">💸 المصروفات اليومية</button>
-                    <button type="button" onclick="requestTreasuryAccess()" id="mainTabTreasury" class="main-tab px-3 py-1.5 rounded transition">🏦 حركة الخزنة 🔒</button>
+                    <button type="button" onclick="switchMainView('pos')" id="mainTabPos" class="main-tab active px-3 py-1.5 rounded transition cursor-pointer">🛒 الكاشير والطلبات</button>
+                    <button type="button" onclick="switchMainView('expenses')" id="mainTabExpenses" class="main-tab px-3 py-1.5 rounded transition cursor-pointer">💸 المصروفات اليومية</button>
+                    <button type="button" onclick="requestTreasuryAccess()" id="mainTabTreasury" class="main-tab px-3 py-1.5 rounded transition cursor-pointer">🏦 حركة الخزنة 🔒</button>
                 </div>
-                <button type="button" onclick="handleLogout()" class="bg-gray-300 text-gray-800 px-3 py-1.5 rounded font-bold hover:bg-gray-400 text-sm">خروج</button>
+                <button type="button" onclick="handleLogout()" class="bg-gray-300 text-gray-800 px-3 py-1.5 rounded font-bold hover:bg-gray-400 text-sm cursor-pointer">خروج</button>
             </div>
         </div>
         
@@ -71,13 +71,13 @@
         <div id="posSection" class="grid grid-cols-1 lg:grid-cols-12 gap-4">
             <div class="lg:col-span-7 bg-gray-50 p-3 rounded border">
                 <div class="flex gap-1 overflow-x-auto pb-2 mb-3 border-b text-sm font-bold">
-                    <button type="button" onclick="switchTab('sandwiches')" id="tab-sandwiches" class="tab-btn active px-3 py-2 rounded bg-white border whitespace-nowrap">🥪 سندوتشات</button>
-                    <button type="button" onclick="switchTab('crepes')" id="tab-crepes" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🌮 كريبات</button>
-                    <button type="button" onclick="switchTab('meals')" id="tab-meals" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🍱 وجبات</button>
-                    <button type="button" onclick="switchTab('pizza_italy')" id="tab-pizza_italy" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🍕 بيتزا إيطالي</button>
-                    <button type="button" onclick="switchTab('pizza_oriental')" id="tab-pizza_oriental" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🥘 بيتزا شرقي</button>
-                    <button type="button" onclick="switchTab('fateer_salty')" id="tab-fateer_salty" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🫓 فطير حادق</button>
-                    <button type="button" onclick="switchTab('fateer_sweet')" id="tab-fateer_sweet" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🍯 فطير حلو</button>
+                    <button type="button" onclick="switchTab('sandwiches')" id="tab-sandwiches" class="tab-btn active px-3 py-2 rounded bg-white border whitespace-nowrap cursor-pointer">🥪 سندوتشات وحواوشي</button>
+                    <button type="button" onclick="switchTab('crepes')" id="tab-crepes" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap cursor-pointer">🌮 كريبات</button>
+                    <button type="button" onclick="switchTab('meals')" id="tab-meals" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap cursor-pointer">🍱 وجبات</button>
+                    <button type="button" onclick="switchTab('pizza_italy')" id="tab-pizza_italy" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap cursor-pointer">🍕 بيتزا إيطالي</button>
+                    <button type="button" onclick="switchTab('pizza_oriental')" id="tab-pizza_oriental" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap cursor-pointer">🥘 بيتزا شرقي</button>
+                    <button type="button" onclick="switchTab('fateer_salty')" id="tab-fateer_salty" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap cursor-pointer">🫓 فطير حادق</button>
+                    <button type="button" onclick="switchTab('fateer_sweet')" id="tab-fateer_sweet" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap cursor-pointer">🍯 فطير حلو</button>
                 </div>
 
                 <div id="itemsGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[420px] overflow-y-auto p-1"></div>
@@ -100,20 +100,20 @@
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
-                        <button type="button" onclick="submitOrder()" class="bg-green-600 text-white p-2.5 rounded font-bold hover:bg-green-700 text-sm">حفظ وطباعة 🖨️</button>
-                        <button type="button" onclick="clearCart()" class="bg-gray-400 text-white p-2.5 rounded font-bold hover:bg-gray-500 text-sm">إلغاء</button>
+                        <button type="button" onclick="submitOrder()" class="bg-green-600 text-white p-2.5 rounded font-bold hover:bg-green-700 text-sm cursor-pointer">حفظ وطباعة 🖨️</button>
+                        <button type="button" onclick="clearCart()" class="bg-gray-400 text-white p-2.5 rounded font-bold hover:bg-gray-500 text-sm cursor-pointer">إلغاء</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- قسم المصروفات (مفتوح طبيعي) -->
+        <!-- قسم المصروفات -->
         <div id="expensesSection" class="hidden bg-gray-50 p-4 rounded border">
             <h2 class="text-xl font-bold mb-4 text-gray-800">💸 إدارة المصروفات اليومية</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                 <input type="text" id="expenseTitle" placeholder="بيان المصروف (مثلاً: شراء كبدة، كهرباء)" class="p-2.5 border rounded text-sm">
                 <input type="number" id="expenseAmount" placeholder="المبلغ (بالجنيه)" class="p-2.5 border rounded text-sm">
-                <button type="button" onclick="addExpense()" class="bg-red-600 text-white p-2.5 rounded font-bold hover:bg-red-700 text-sm">➕ إضافة المصروف</button>
+                <button type="button" onclick="addExpense()" class="bg-red-600 text-white p-2.5 rounded font-bold hover:bg-red-700 text-sm cursor-pointer">➕ إضافة المصروف</button>
             </div>
 
             <h3 class="font-bold text-gray-700 mb-2">سجل مصروفات اليوم:</h3>
@@ -122,7 +122,7 @@
             </div>
         </div>
 
-        <!-- قسم حركة الخزنة (محمي بكلمة المرور) -->
+        <!-- قسم حركة الخزنة -->
         <div id="treasurySection" class="hidden bg-gray-50 p-4 rounded border">
             <h2 class="text-xl font-bold mb-4 text-gray-800">🏦 كشف حركة الخزنة الكاملة (خاص بالإدارة)</h2>
             
@@ -198,16 +198,27 @@
             console.error("Supabase Error:", e);
         }
 
-        // 🔐 كلمة مرور الإدارة الخاصة بحركة الخزنة (7777)
         const ADMIN_SECRET_PASS = "7777";
 
         const MENU_DATA = {
             sandwiches: [
-                { name: 'سندوتش كبده', price: 25 },
-                { name: 'سندوتش مخ', price: 30 },
-                { name: 'سندوتش جمبري', price: 40 },
-                { name: 'سندوتش شاورما', price: 35 },
-                { name: 'سندوتش بطاطس', price: 15 }
+                { name: 'حواوشي عادي', price: 25 },
+                { name: 'حواوشي مخصوص', price: 35 },
+                { name: 'حواوشي ضاني', price: 40 },
+                { name: 'حواوشي موزاريلا', price: 50 },
+                { name: 'رغيف كفته', price: 30 },
+                { name: 'رغيف كفته ضاني', price: 35 },
+                { name: 'رغيف طرب', price: 45 },
+                { name: 'رغيف كبده بلدي', price: 30 },
+                { name: 'رغيف مخ', price: 45 },
+                { name: 'رغيف كبده ومخ', price: 45 },
+                { name: 'رغيف جمبري وسط', price: 40 },
+                { name: 'رغيف جمبري كبير', price: 50 },
+                { name: 'رغيف فراخ بانيه', price: 35 },
+                { name: 'رغيف شيش طاووك', price: 45 },
+                { name: 'رغيف سمك فيليه', price: 35 },
+                { name: 'برجر ساده', price: 25 },
+                { name: 'برجر بيض', price: 32 }
             ],
             crepes: [
                 { name: 'كريب شاورما فراخ', price: 60 },
@@ -317,7 +328,7 @@
 
             const items = MENU_DATA[tabKey] || [];
             document.getElementById('itemsGrid').innerHTML = items.map(item => `
-                <button type="button" onclick="addToCart('${item.name}', ${item.price})" class="bg-white border border-gray-200 p-2.5 rounded shadow-sm hover:border-red-500 text-right flex flex-col justify-between">
+                <button type="button" onclick="addToCart('${item.name}', ${item.price})" class="bg-white border border-gray-200 p-2.5 rounded shadow-sm hover:border-red-500 text-right flex flex-col justify-between cursor-pointer">
                     <span class="font-bold text-gray-800 text-sm mb-1">${item.name}</span>
                     <span class="text-red-600 font-bold text-xs bg-red-50 w-fit px-1.5 py-0.5 rounded">${item.price} جنيه</span>
                 </button>
@@ -347,7 +358,7 @@
                     <span>${item.name} (x${item.qty})</span>
                     <div class="flex items-center gap-2">
                         <span class="font-bold">${itemTotal} ج</span>
-                        <button type="button" onclick="removeFromCart(${index})" class="text-red-500 font-bold px-1">✕</button>
+                        <button type="button" onclick="removeFromCart(${index})" class="text-red-500 font-bold px-1 cursor-pointer">✕</button>
                     </div>
                 </div>`;
             }).join('');
@@ -444,7 +455,7 @@
             listDiv.innerHTML = data.map(e => `
                 <div class="flex justify-between items-center border-b pb-1 text-sm">
                     <div><strong>${e.title}</strong>: <span class="text-red-600 font-bold">${e.amount} جنيه</span></div>
-                    <button type="button" onclick="deleteExpense(${e.id})" class="text-red-500 font-bold px-2 py-0.5 rounded hover:bg-red-50 text-xs">حذف</button>
+                    <button type="button" onclick="deleteExpense(${e.id})" class="text-red-500 font-bold px-2 py-0.5 rounded hover:bg-red-50 text-xs cursor-pointer">حذف</button>
                 </div>
             `).join('');
         }
