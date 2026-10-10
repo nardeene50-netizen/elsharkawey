@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* إعدادات مخصصة لطباعة ماكينة الريسيت الحرارية (عرض 80 مم) */
+        /* إعدادات الطباعة الحرارية (مقاس 80 مم) */
         @media print {
             body * {
                 visibility: hidden !important;
@@ -23,7 +23,7 @@
                 position: absolute !important;
                 left: 0 !important;
                 top: 0 !important;
-                width: 76mm !important; /* مقاس مناسب لورق الريسيت */
+                width: 76mm !important;
                 font-family: 'Courier New', Courier, monospace !important;
                 color: #000 !important;
                 background: #fff !important;
@@ -46,7 +46,7 @@
 </head>
 <body class="bg-gray-100 font-sans p-3">
 
-    <!-- شاشة تسجيل الدخول العامة (للعامل/الكاشير) -->
+    <!-- شاشة تسجيل الدخول العامة -->
     <div id="loginScreen" class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg mt-20 no-print">
         <h1 class="text-2xl font-bold text-center text-red-700 mb-6">تسجيل دخول كاشير الشرقاوي 🥩</h1>
         <div class="mb-4">
@@ -192,7 +192,7 @@
         </div>
     </div>
 
-    <!-- نموذج ريسيت الفاتورة (مصمم لمقاس 80 مم) -->
+    <!-- نموذج ريسيت الفاتورة المخصص للطباعة الحرارية -->
     <div id="printArea" style="display: none; width: 72mm; font-size: 12px; line-height: 1.4; padding: 2mm;">
         <div style="text-align: center; font-weight: bold; font-size: 15px; margin-bottom: 2px;">مطعم كبده ومخ الشرقاوي</div>
         <div style="text-align: center; font-size: 11px; margin-bottom: 5px;">بالهنا والشفا 🥩</div>
@@ -200,7 +200,7 @@
         
         <div id="pCustomerItems" style="font-size: 12px; margin-bottom: 4px;"></div>
         
-        <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 4px 0; margin-top: 4px; font-weight: bold; font-size: 14px; text-align: left;" id="pCustomerTotal"></div>
+        <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 4px 0; margin-top: 4px; font-weight: bold; font-size: 14px;" id="pCustomerTotal"></div>
         
         <div style="text-align: center; font-size: 10px; margin-top: 6px;">شكراً لزيارتكم الشرقاوي</div>
         
@@ -211,7 +211,7 @@
         </div>
     </div>
 
-    <!-- نموذج ريسيت ترحيل الخزنة (مصمم لمقاس 80 مم) -->
+    <!-- نموذج ريسيت ترحيل الخزنة -->
     <div id="printTreasuryArea" style="display: none; width: 72mm; font-size: 12px; line-height: 1.4; padding: 2mm; text-align: center;">
         <div style="font-weight: bold; font-size: 15px; margin-bottom: 2px;">مطعم كبده ومخ الشرقاوي 🥩</div>
         <div style="font-weight: bold; font-size: 13px; margin-bottom: 4px;">[ إيصال تصفية وترحيل الخزنة 🏦 ]</div>
@@ -430,7 +430,10 @@
                 return;
             }
             let total_price = currentCart.reduce((sum, i) => sum + (i.price * i.qty), 0);
-            const itemsData = JSON.stringify(currentCart);
+            
+            // نسخ السلة قبل الحفظ أو المسح
+            const itemsToPrint = [...currentCart];
+            const itemsData = JSON.stringify(itemsToPrint);
 
             if (_supabase) {
                 const { error } = await _supabase.from('orders').insert([{ 
@@ -443,16 +446,17 @@
                 if (error) {
                     alert('خطأ في حفظ الطلب: ' + error.message);
                 } else {
-                    triggerDoublePrint(customer_name, currentCart, total_price);
+                    triggerDoublePrint(customer_name, itemsToPrint, total_price);
                     clearCart();
                     fetchOrders();
                 }
             } else {
-                triggerDoublePrint(customer_name, currentCart, total_price);
+                triggerDoublePrint(customer_name, itemsToPrint, total_price);
                 clearCart();
             }
         }
 
+        // دالة إعداد وطباعة بون الزبون وبون المطبخ
         function triggerDoublePrint(customer, items, total) {
             document.getElementById('printTreasuryArea').style.display = 'none';
             document.getElementById('printArea').style.display = 'block';
@@ -460,22 +464,23 @@
             const dateStr = new Date().toLocaleString('ar-EG');
             document.getElementById('pCustomerMeta').innerHTML = `العميل: ${customer}<br>التاريخ: ${dateStr}`;
             
+            // تحضير الأصناف بشكل جدول مرن وواضح للطباعة
             document.getElementById('pCustomerItems').innerHTML = items.map(i => `
-                <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
                     <span>${i.name} (×${i.qty})</span>
-                    <span>${i.price * i.qty} ج</span>
+                    <span style="font-weight: bold;">${i.price * i.qty} ج</span>
                 </div>
             `).join('');
             
             document.getElementById('pCustomerTotal').innerHTML = `
                 <div style="display: flex; justify-content: space-between;">
-                    <span>الإجمالي:</span>
+                    <span>الإجمالي الكلي:</span>
                     <span>${total} جنيه</span>
                 </div>
             `;
 
             document.getElementById('pKitchenMeta').innerHTML = `العميل: ${customer} | الوقت: ${new Date().toLocaleTimeString('ar-EG')}`;
-            document.getElementById('pKitchenItems').innerHTML = items.map(i => `<div>▪️ ${i.name} (${i.qty})</div>`).join('');
+            document.getElementById('pKitchenItems').innerHTML = items.map(i => `<div style="margin-bottom: 2px;">▫️ ${i.name} (عدد: ${i.qty})</div>`).join('');
 
             window.print();
         }
