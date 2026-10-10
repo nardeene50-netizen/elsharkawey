@@ -257,7 +257,6 @@
 
         let currentCart = [];
 
-        // ربط الأحداث برمجياً لضمان الاستجابة الفورية
         document.addEventListener('DOMContentLoaded', () => {
             const loginBtn = document.getElementById('loginBtn');
             if (loginBtn) {
@@ -312,9 +311,9 @@
             
             const titleEl = document.getElementById('adminAuthTitle');
             if (actionType === 'treasury') {
-                titleEl.innerText = "هذا القسم (حركة الخزنة) محمي للإدارة فقط";
+                titleEl.innerText = "هذا القسم (حركة الخزنة) محمي بكلمة مرور الإدارة";
             } else if (actionType === 'sales') {
-                titleEl.innerText = "هذا القسم (تقرير الأرباح) محمي للإدارة فقط";
+                titleEl.innerText = "هذا القسم (تقرير الأرباح) محمي بكلمة مرور الإدارة";
             }
 
             document.getElementById('adminAuthModal').classList.remove('hidden');
