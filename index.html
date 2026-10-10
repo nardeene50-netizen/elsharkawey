@@ -8,8 +8,28 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 font-sans p-6">
-    <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-        <h1 class="text-3xl font-bold text-center text-red-700 mb-6">مطعم كبده ومخ الشرقاوي 🥩🧠</h1>
+
+    <!-- شاشة تسجيل الدخول -->
+    <div id="loginScreen" class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg mt-20">
+        <h1 class="text-2xl font-bold text-center text-red-700 mb-6">تسجيل دخول مطعم الشرقاوي 🥩</h1>
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2 font-bold">اسم المستخدم</label>
+            <input type="text" id="username" placeholder="اكتب اسم المستخدم" class="w-full p-3 border rounded">
+        </div>
+        <div class="mb-6">
+            <label class="block text-gray-700 mb-2 font-bold">كلمة المرور</label>
+            <input type="password" id="password" placeholder="اكتب كلمة المرور" class="w-full p-3 border rounded">
+        </div>
+        <button onclick="handleLogin()" class="w-full bg-red-600 text-white p-3 rounded font-bold hover:bg-red-700">دخول للسيستم</button>
+        <p id="loginError" class="text-red-500 text-center mt-3 text-sm hidden">اسم المستخدم أو كلمة المرور غير صحيحة!</p>
+    </div>
+
+    <!-- لوحة التحكم والسيستم (مخفية لحين تسجيل الدخول) -->
+    <div id="appScreen" class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg hidden">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-red-700">مطعم كبده ومخ الشرقاوي 🥩🧠</h1>
+            <button onclick="handleLogout()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded font-bold hover:bg-gray-400">تسجيل خروج</button>
+        </div>
         
         <!-- قسم إضافة طلب جديد -->
         <div class="bg-gray-50 p-4 rounded mb-6 border">
@@ -31,17 +51,39 @@
 
     <script>
         const SUPABASE_URL = 'https://lgwpqauwpzyvnyozkskn.supabase.co';
-        
-        // ⚠️ مهم جداً: استبدل النص اللي بين القوسين بالمفتاح الطويل اللي نسخناه من صفحة API Keys في Supabase (اللي بيبدأ بـ sb_publishable_)
-        const SUPABASE_ANON_KEY = 'حط_المفتاح_الخاص_بيك_هنا';
+        const SUPABASE_ANON_KEY = 'حط_مفتاح_Publishable_هنا'; // تأكد من وضع مفتاح Publishable الصحيح هنا
         
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // بيانات الدخول الخاصة بالمطعم (تقدر تغيرها براحتك هنا)
+        const ADMIN_USER = "elsharkawey";
+        const ADMIN_PASS = "123456";
+
+        function handleLogin() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const errorMsg = document.getElementById('loginError');
+
+            if (user === ADMIN_USER && pass === ADMIN_PASS) {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('appScreen').classList.remove('hidden');
+                fetchOrders();
+            } else {
+                errorMsg.classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            document.getElementById('appScreen').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
 
         async function fetchOrders() {
             const { data, error } = await _supabase.from('orders').select('*').order('id', { ascending: false });
             const listDiv = document.getElementById('ordersList');
             if (error) {
-                console.error(error);
                 listDiv.innerHTML = '<p class="text-red-500">خطأ في جلب الطلبات، تأكد من مفتاح API Key</p>';
                 return;
             }
@@ -73,7 +115,6 @@
                 return;
             }
 
-            // نحول النص لـ JSON عشان ينفع يتحفظ في جدول Supabase بدون مشاكل
             const itemsData = JSON.stringify(itemsText);
 
             const { error } = await _supabase.from('orders').insert([{ 
@@ -83,7 +124,6 @@
             }]);
 
             if (error) {
-                console.error(error);
                 alert('حدث خطأ أثناء حفظ الطلب: ' + error.message);
             } else {
                 document.getElementById('customerName').value = '';
@@ -92,8 +132,6 @@
                 fetchOrders();
             }
         }
-
-        fetchOrders();
     </script>
 </body>
 </html>
