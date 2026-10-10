@@ -586,4 +586,46 @@
 
             const tbody = document.getElementById('treasuryLogs');
             if (logs.length === 0) {
-                tbody.innerHTML =
+                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">لا توجد حركات مسجلة بالخزنة حتى الآن</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = logs.map(l => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-2.5 font-bold ${l.type === 'in' ? 'text-green-600' : 'text-red-600'}">
+                        ${l.type === 'in' ? '🟢 إيراد مبيعات' : '🔴 مصروفات'}
+                    </td>
+                    <td class="p-2.5">${l.title}</td>
+                    <td class="p-2.5 font-bold">${l.amount} جنيه</td>
+                    <td class="p-2.5 text-gray-500 text-xs">${l.time.toLocaleString('ar-EG')}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function showSalesReport() {
+            if (!_supabase) return;
+            const ordersRes = await _supabase.from('orders').select('*');
+            const expensesRes = await _supabase.from('expenses').select('*');
+            const modal = document.getElementById('salesModal');
+            const reportText = document.getElementById('salesReportText');
+            
+            let totalRevenue = (ordersRes.data || []).reduce((sum, o) => sum + (parseFloat(o.total_price) || 0), 0);
+            let totalOrders = (ordersRes.data || []).length;
+            let totalExpenses = (expensesRes.data || []).reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+            let netProfit = totalRevenue - totalExpenses;
+
+            reportText.innerHTML = `
+                🔹 إجمالي عدد الطلبات: <strong>${totalOrders}</strong><br>
+                💰 إجمالي الإيرادات (المبيعات): <strong class="text-green-600">${totalRevenue} جنيه</strong><br>
+                💸 إجمالي المصروفات: <strong class="text-red-600">${totalExpenses} جنيه</strong><hr class="my-2">
+                📈 صافي الربح الفعلي: <strong class="text-blue-600 text-lg">${netProfit} جنيه</strong>
+            `;
+            modal.classList.remove('hidden');
+        }
+
+        function closeSalesReport() {
+            document.getElementById('salesModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
