@@ -44,7 +44,7 @@
     <div id="adminAuthModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white p-6 rounded-lg max-w-sm w-full shadow-lg">
             <h2 class="text-xl font-bold mb-3 text-gray-800 text-center">🔐 إدارة حركة الخزنة</h2>
-            <p class="text-sm text-gray-600 mb-4 text-center">هذه القسم محمي بكلمة مرور خاصة بالإدارة فقط</p>
+            <p class="text-sm text-gray-600 mb-4 text-center">هذا القسم محمي بكلمة مرور خاصة بالإدارة فقط</p>
             <input type="password" id="adminPasswordInput" placeholder="اكتب كلمة مرور الإدارة" class="w-full p-3 border rounded mb-3 text-center text-lg">
             <button type="button" onclick="verifyAdminPassword()" class="w-full bg-red-700 text-white p-2.5 rounded font-bold hover:bg-red-800 mb-2">دخول للخزنة</button>
             <button type="button" onclick="closeAdminAuth()" class="w-full bg-gray-300 text-gray-700 p-2 rounded font-bold hover:bg-gray-400 text-sm">إلغاء</button>
@@ -63,7 +63,6 @@
                     <button type="button" onclick="switchMainView('expenses')" id="mainTabExpenses" class="main-tab px-3 py-1.5 rounded transition">💸 المصروفات اليومية</button>
                     <button type="button" onclick="requestTreasuryAccess()" id="mainTabTreasury" class="main-tab px-3 py-1.5 rounded transition">🏦 حركة الخزنة 🔒</button>
                 </div>
-                <button type="button" onclick="showSalesReport()" class="bg-blue-600 text-white px-3 py-1.5 rounded font-bold hover:bg-blue-700 text-sm">📊 تقرير الأرباح</button>
                 <button type="button" onclick="handleLogout()" class="bg-gray-300 text-gray-800 px-3 py-1.5 rounded font-bold hover:bg-gray-400 text-sm">خروج</button>
             </div>
         </div>
@@ -169,15 +168,6 @@
         </div>
     </div>
 
-    <!-- نافذة تقرير الأرباح الصافية -->
-    <div id="salesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white p-6 rounded-lg max-w-md w-full shadow-lg">
-            <h2 class="text-xl font-bold mb-4 text-gray-800">📊 تقرير المبيعات والأرباح الصافية</h2>
-            <div id="salesReportText" class="text-md mb-6 text-gray-700 space-y-2">جاري الحساب...</div>
-            <button type="button" onclick="closeSalesReport()" class="w-full bg-blue-600 text-white p-2 rounded font-bold">إغلاق</button>
-        </div>
-    </div>
-
     <!-- منطقة الطباعة -->
     <div id="printArea" class="hidden font-sans p-2">
         <div style="page-break-after: always; text-align: center; border-bottom: 2px dashed #000; padding-bottom: 20px;">
@@ -208,7 +198,7 @@
             console.error("Supabase Error:", e);
         }
 
-        // 🔐 كلمة مرور الإدارة الخاصة بحركة الخزنة (يمكنك تعديلها هنا، مثلاً: 7777)
+        // 🔐 كلمة مرور الإدارة الخاصة بحركة الخزنة (7777)
         const ADMIN_SECRET_PASS = "7777";
 
         const MENU_DATA = {
@@ -272,7 +262,6 @@
             document.getElementById('loginScreen').style.display = 'block';
         }
 
-        // طلب كلمة المرور عند محاولة فتح الخزنة فقط
         function requestTreasuryAccess() {
             document.getElementById('adminPasswordInput').value = '';
             document.getElementById('adminAuthError').classList.add('hidden');
@@ -554,31 +543,6 @@
                     <td class="p-2.5 text-gray-500 text-xs">${l.time.toLocaleString('ar-EG')}</td>
                 </tr>
             `).join('');
-        }
-
-        async function showSalesReport() {
-            if (!_supabase) return;
-            const ordersRes = await _supabase.from('orders').select('*');
-            const expensesRes = await _supabase.from('expenses').select('*');
-            const modal = document.getElementById('salesModal');
-            const reportText = document.getElementById('salesReportText');
-            
-            let totalRevenue = (ordersRes.data || []).reduce((sum, o) => sum + (parseFloat(o.total_price) || 0), 0);
-            let totalOrders = (ordersRes.data || []).length;
-            let totalExpenses = (expensesRes.data || []).reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
-            let netProfit = totalRevenue - totalExpenses;
-
-            reportText.innerHTML = `
-                🔹 إجمالي عدد الطلبات: <strong>${totalOrders}</strong><br>
-                💰 إجمالي الإيرادات (المبيعات): <strong class="text-green-600">${totalRevenue} جنيه</strong><br>
-                💸 إجمالي المصروفات: <strong class="text-red-600">${totalExpenses} جنيه</strong><hr class="my-2">
-                📈 صافي الربح الفعلي: <strong class="text-blue-600 text-lg">${netProfit} جنيه</strong>
-            `;
-            modal.classList.remove('hidden');
-        }
-
-        function closeSalesReport() {
-            document.getElementById('salesModal').classList.add('hidden');
         }
     </script>
 </body>
