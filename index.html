@@ -40,13 +40,13 @@
         <p id="loginError" class="text-red-500 text-center mt-3 text-sm hidden">خطأ في كلمة المرور!</p>
     </div>
 
-    <!-- نافذة كلمة مرور الإدارة (خاصة بحركة الخزنة فقط) -->
+    <!-- نافذة كلمة مرور الإدارة (خاصة بالخزنة وتقرير الأرباح) -->
     <div id="adminAuthModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white p-6 rounded-lg max-w-sm w-full shadow-lg">
-            <h2 class="text-xl font-bold mb-3 text-gray-800 text-center">🔐 إدارة حركة الخزنة</h2>
-            <p class="text-sm text-gray-600 mb-4 text-center">هذه القسم محمي بكلمة مرور خاصة بالإدارة فقط</p>
+            <h2 class="text-xl font-bold mb-3 text-gray-800 text-center">🔐 بوابة الإدارة</h2>
+            <p id="adminAuthTitle" class="text-sm text-gray-600 mb-4 text-center">هذا القسم محمي بكلمة مرور خاصة بالإدارة فقط</p>
             <input type="password" id="adminPasswordInput" placeholder="اكتب كلمة مرور الإدارة" class="w-full p-3 border rounded mb-3 text-center text-lg">
-            <button type="button" onclick="verifyAdminPassword()" class="w-full bg-red-700 text-white p-2.5 rounded font-bold hover:bg-red-800 mb-2">دخول للخزنة</button>
+            <button type="button" onclick="verifyAdminPassword()" class="w-full bg-red-700 text-white p-2.5 rounded font-bold hover:bg-red-800 mb-2">دخول</button>
             <button type="button" onclick="closeAdminAuth()" class="w-full bg-gray-300 text-gray-700 p-2 rounded font-bold hover:bg-gray-400 text-sm">إلغاء</button>
             <p id="adminAuthError" class="text-red-500 text-center mt-2 text-xs hidden">كلمة مرور الإدارة غير صحيحة!</p>
         </div>
@@ -61,9 +61,9 @@
                 <div class="flex bg-gray-200 p-1 rounded font-bold text-sm">
                     <button type="button" onclick="switchMainView('pos')" id="mainTabPos" class="main-tab active px-3 py-1.5 rounded transition">🛒 الكاشير والطلبات</button>
                     <button type="button" onclick="switchMainView('expenses')" id="mainTabExpenses" class="main-tab px-3 py-1.5 rounded transition">💸 المصروفات اليومية</button>
-                    <button type="button" onclick="requestTreasuryAccess()" id="mainTabTreasury" class="main-tab px-3 py-1.5 rounded transition">🏦 حركة الخزنة 🔒</button>
+                    <button type="button" onclick="requestAdminAccess('treasury')" id="mainTabTreasury" class="main-tab px-3 py-1.5 rounded transition">🏦 حركة الخزنة 🔒</button>
                 </div>
-                <button type="button" onclick="showSalesReport()" class="bg-blue-600 text-white px-3 py-1.5 rounded font-bold hover:bg-blue-700 text-sm">📊 تقرير الأرباح</button>
+                <button type="button" onclick="requestAdminAccess('sales')" class="bg-blue-600 text-white px-3 py-1.5 rounded font-bold hover:bg-blue-700 text-sm">📊 تقرير الأرباح 🔒</button>
                 <button type="button" onclick="handleLogout()" class="bg-gray-300 text-gray-800 px-3 py-1.5 rounded font-bold hover:bg-gray-400 text-sm">خروج</button>
             </div>
         </div>
@@ -123,7 +123,7 @@
             </div>
         </div>
 
-        <!-- قسم حركة الخزنة (محمي بكلمة المرور) -->
+        <!-- قسم حركة الخزنة (محمي) -->
         <div id="treasurySection" class="hidden bg-gray-50 p-4 rounded border">
             <h2 class="text-xl font-bold mb-4 text-gray-800">🏦 كشف حركة الخزنة الكاملة (خاص بالإدارة)</h2>
             
@@ -208,8 +208,9 @@
             console.error("Supabase Error:", e);
         }
 
-        // 🔐 كلمة مرور الإدارة الخاصة بحركة الخزنة (يمكنك تعديلها هنا، مثلاً: 7777)
+        // 🔐 كلمة مرور الإدارة (مضبوطة على 7777)
         const ADMIN_SECRET_PASS = "7777";
+        let pendingAdminAction = null;
 
         const MENU_DATA = {
             sandwiches: [
@@ -272,15 +273,25 @@
             document.getElementById('loginScreen').style.display = 'block';
         }
 
-        // طلب كلمة المرور عند محاولة فتح الخزنة فقط
-        function requestTreasuryAccess() {
+        // نظام التحقق الإداري الموحد (للخزنة وتقرير الأرباح)
+        function requestAdminAccess(actionType) {
+            pendingAdminAction = actionType;
             document.getElementById('adminPasswordInput').value = '';
             document.getElementById('adminAuthError').classList.add('hidden');
+            
+            const titleEl = document.getElementById('adminAuthTitle');
+            if (actionType === 'treasury') {
+                titleEl.innerText = "هذا القسم (حركة الخزنة) محمي للإدارة فقط";
+            } else if (actionType === 'sales') {
+                titleEl.innerText = "هذا القسم (تقرير الأرباح) محمي للإدارة فقط";
+            }
+
             document.getElementById('adminAuthModal').classList.remove('hidden');
         }
 
         function closeAdminAuth() {
             document.getElementById('adminAuthModal').classList.add('hidden');
+            pendingAdminAction = null;
         }
 
         function verifyAdminPassword() {
@@ -289,7 +300,11 @@
 
             if (enteredPass === ADMIN_SECRET_PASS) {
                 closeAdminAuth();
-                switchMainView('treasury');
+                if (pendingAdminAction === 'treasury') {
+                    switchMainView('treasury');
+                } else if (pendingAdminAction === 'sales') {
+                    showSalesReport();
+                }
             } else {
                 errorText.classList.remove('hidden');
             }
@@ -416,170 +431,3 @@
             document.getElementById('pKitchenItems').innerHTML = items.map(i => `<div>▫️ ${i.name} (عدد: ${i.qty})</div>`).join('');
 
             window.print();
-        }
-
-        async function addExpense() {
-            const title = document.getElementById('expenseTitle').value.trim();
-            const amount = parseFloat(document.getElementById('expenseAmount').value);
-
-            if (!title || !amount) {
-                alert('من فضلك ادخل بيان المصروف والمبلغ!');
-                return;
-            }
-
-            if (_supabase) {
-                const { error } = await _supabase.from('expenses').insert([{ title, amount }]);
-                if (error) {
-                    alert('خطأ في حفظ المصروف: ' + error.message);
-                } else {
-                    document.getElementById('expenseTitle').value = '';
-                    document.getElementById('expenseAmount').value = '';
-                    fetchExpenses();
-                }
-            }
-        }
-
-        async function fetchExpenses() {
-            if (!_supabase) return;
-            const { data, error } = await _supabase.from('expenses').select('*').order('id', { ascending: false });
-            const listDiv = document.getElementById('expensesList');
-            if (error) {
-                listDiv.innerHTML = '<p class="text-red-500 text-sm">خطأ في جلب المصروفات</p>';
-                return;
-            }
-            if (!data || data.length === 0) {
-                listDiv.innerHTML = '<p class="text-gray-500 text-sm">لا توجد مصروفات مسجلة</p>';
-                return;
-            }
-
-            listDiv.innerHTML = data.map(e => `
-                <div class="flex justify-between items-center border-b pb-1 text-sm">
-                    <div><strong>${e.title}</strong>: <span class="text-red-600 font-bold">${e.amount} جنيه</span></div>
-                    <button type="button" onclick="deleteExpense(${e.id})" class="text-red-500 font-bold px-2 py-0.5 rounded hover:bg-red-50 text-xs">حذف</button>
-                </div>
-            `).join('');
-        }
-
-        async function deleteExpense(id) {
-            if (confirm('هل أنت متأكد من حذف هذا المصروف؟')) {
-                if (_supabase) {
-                    await _supabase.from('expenses').delete().eq('id', id);
-                    fetchExpenses();
-                }
-            }
-        }
-
-        async function fetchOrders() {
-            if (!_supabase) return;
-            const { data, error } = await _supabase.from('orders').select('*').order('id', { ascending: false }).limit(10);
-            const listDiv = document.getElementById('ordersList');
-            if (error || !data) return;
-            
-            listDiv.innerHTML = data.map(o => {
-                let itemsText = '';
-                try {
-                    let parsed = typeof o.items === 'string' ? JSON.parse(o.items) : o.items;
-                    if (Array.isArray(parsed)) { itemsText = parsed.map(i => `${i.name} (x${i.qty})`).join('، '); } 
-                    else { itemsText = o.items; }
-                } catch(e) { itemsText = o.items; }
-
-                return `
-                <div class="p-2 border rounded bg-white flex justify-between items-center text-xs">
-                    <div><strong>العميل:</strong> ${o.customer_name || 'عام'} | <strong>الطلب:</strong> ${itemsText}</div>
-                    <span class="text-red-600 font-bold">${o.total_price} جنيه</span>
-                </div>
-            `}).join('');
-        }
-
-        async function fetchTreasuryLogs() {
-            if (!_supabase) return;
-            const ordersRes = await _supabase.from('orders').select('*');
-            const expensesRes = await _supabase.from('expenses').select('*');
-
-            const orders = ordersRes.data || [];
-            const expenses = expensesRes.data || [];
-
-            let totalIn = 0;
-            let totalOut = 0;
-            let logs = [];
-
-            orders.forEach(o => {
-                let amt = parseFloat(o.total_price) || 0;
-                totalIn += amt;
-                let itemsText = '';
-                try {
-                    let parsed = typeof o.items === 'string' ? JSON.parse(o.items) : o.items;
-                    if (Array.isArray(parsed)) { itemsText = parsed.map(i => `${i.name} (${i.qty})`).join('، '); } 
-                    else { itemsText = o.items; }
-                } catch(e) { itemsText = o.items; }
-
-                logs.push({
-                    type: 'in',
-                    title: `أوردر مبيعات: ${o.customer_name || 'عميل عام'} (${itemsText})`,
-                    amount: amt,
-                    time: new Date(o.created_at || Date.now())
-                });
-            });
-
-            expenses.forEach(e => {
-                let amt = parseFloat(e.amount) || 0;
-                totalOut += amt;
-                logs.push({
-                    type: 'out',
-                    title: `مصروف: ${e.title}`,
-                    amount: amt,
-                    time: new Date(e.created_at || Date.now())
-                });
-            });
-
-            logs.sort((a, b) => b.time - a.time);
-
-            document.getElementById('treasuryIn').innerText = `${totalIn} جنيه`;
-            document.getElementById('treasuryOut').innerText = `${totalOut} جنيه`;
-            document.getElementById('treasuryBalance').innerText = `${totalIn - totalOut} جنيه`;
-
-            const tbody = document.getElementById('treasuryLogs');
-            if (logs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">لا توجد حركات مسجلة بالخزنة حتى الآن</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = logs.map(l => `
-                <tr class="hover:bg-gray-50">
-                    <td class="p-2.5 font-bold ${l.type === 'in' ? 'text-green-600' : 'text-red-600'}">
-                        ${l.type === 'in' ? '🟢 إيراد مبيعات' : '🔴 مصروفات'}
-                    </td>
-                    <td class="p-2.5">${l.title}</td>
-                    <td class="p-2.5 font-bold">${l.amount} جنيه</td>
-                    <td class="p-2.5 text-gray-500 text-xs">${l.time.toLocaleString('ar-EG')}</td>
-                </tr>
-            `).join('');
-        }
-
-        async function showSalesReport() {
-            if (!_supabase) return;
-            const ordersRes = await _supabase.from('orders').select('*');
-            const expensesRes = await _supabase.from('expenses').select('*');
-            const modal = document.getElementById('salesModal');
-            const reportText = document.getElementById('salesReportText');
-            
-            let totalRevenue = (ordersRes.data || []).reduce((sum, o) => sum + (parseFloat(o.total_price) || 0), 0);
-            let totalOrders = (ordersRes.data || []).length;
-            let totalExpenses = (expensesRes.data || []).reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
-            let netProfit = totalRevenue - totalExpenses;
-
-            reportText.innerHTML = `
-                🔹 إجمالي عدد الطلبات: <strong>${totalOrders}</strong><br>
-                💰 إجمالي الإيرادات (المبيعات): <strong class="text-green-600">${totalRevenue} جنيه</strong><br>
-                💸 إجمالي المصروفات: <strong class="text-red-600">${totalExpenses} جنيه</strong><hr class="my-2">
-                📈 صافي الربح الفعلي: <strong class="text-blue-600 text-lg">${netProfit} جنيه</strong>
-            `;
-            modal.classList.remove('hidden');
-        }
-
-        function closeSalesReport() {
-            document.getElementById('salesModal').classList.add('hidden');
-        }
-    </script>
-</body>
-</html>
