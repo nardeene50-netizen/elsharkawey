@@ -36,7 +36,7 @@
             <label class="block text-gray-700 mb-2 font-bold">كلمة المرور</label>
             <input type="password" id="password" placeholder="كلمة المرور" class="w-full p-3 border rounded">
         </div>
-        <button onclick="handleLogin()" class="w-full bg-red-600 text-white p-3 rounded font-bold hover:bg-red-700">دخول للسيستم</button>
+        <button type="button" onclick="handleLogin()" class="w-full bg-red-600 text-white p-3 rounded font-bold hover:bg-red-700">دخول للسيستم</button>
         <p id="loginError" class="text-red-500 text-center mt-3 text-sm hidden">اسم المستخدم أو كلمة المرور غير صحيحة!</p>
     </div>
 
@@ -47,32 +47,30 @@
             <h1 class="text-2xl font-bold text-red-700">مطعم كبده ومخ الشرقاوي 🥩🧠</h1>
             <div class="flex items-center gap-2 flex-wrap">
                 <div class="flex bg-gray-200 p-1 rounded font-bold text-sm">
-                    <button onclick="switchMainView('pos')" id="mainTabPos" class="main-tab active px-3 py-1.5 rounded transition">🛒 قسم الكاشير والطلبات</button>
-                    <button onclick="switchMainView('expenses')" id="mainTabExpenses" class="main-tab px-3 py-1.5 rounded transition">💸 قسم المصروفات اليومية</button>
+                    <button type="button" onclick="switchMainView('pos')" id="mainTabPos" class="main-tab active px-3 py-1.5 rounded transition">🛒 قسم الكاشير والطلبات</button>
+                    <button type="button" onclick="switchMainView('expenses')" id="mainTabExpenses" class="main-tab px-3 py-1.5 rounded transition">💸 قسم المصروفات اليومية</button>
                 </div>
-                <button onclick="showSalesReport()" class="bg-blue-600 text-white px-3 py-1.5 rounded font-bold hover:bg-blue-700 text-sm">📊 تقرير الأرباح</button>
-                <button onclick="handleLogout()" class="bg-gray-300 text-gray-800 px-3 py-1.5 rounded font-bold hover:bg-gray-400 text-sm">خروج</button>
+                <button type="button" onclick="showSalesReport()" class="bg-blue-600 text-white px-3 py-1.5 rounded font-bold hover:bg-blue-700 text-sm">📊 تقرير الأرباح</button>
+                <button type="button" onclick="handleLogout()" class="bg-gray-300 text-gray-800 px-3 py-1.5 rounded font-bold hover:bg-gray-400 text-sm">خروج</button>
             </div>
         </div>
         
-        <!-- ================= قسم الكاشير والأوردرات ================= -->
+        <!-- قسم الكاشير والأوردرات -->
         <div id="posSection" class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-            <!-- قسم المنيو والأقسام -->
             <div class="lg:col-span-7 bg-gray-50 p-3 rounded border">
                 <div class="flex gap-1 overflow-x-auto pb-2 mb-3 border-b text-sm font-bold">
-                    <button onclick="switchTab('sandwiches')" id="tab-sandwiches" class="tab-btn active px-3 py-2 rounded bg-white border whitespace-nowrap">🥪 سندوتشات</button>
-                    <button onclick="switchTab('crepes')" id="tab-crepes" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🌮 كريبات</button>
-                    <button onclick="switchTab('meals')" id="tab-meals" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🍱 وجبات</button>
-                    <button onclick="switchTab('pizza_italy')" id="tab-pizza_italy" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🍕 بيتزا إيطالي</button>
-                    <button onclick="switchTab('pizza_oriental')" id="tab-pizza_oriental" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🥘 بيتزا شرقي</button>
-                    <button onclick="switchTab('fateer_salty')" id="tab-fateer_salty" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🫓 فطير حادق</button>
-                    <button onclick="switchTab('fateer_sweet')" id="tab-fateer_sweet" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🍯 فطير حلو</button>
+                    <button type="button" onclick="switchTab('sandwiches')" id="tab-sandwiches" class="tab-btn active px-3 py-2 rounded bg-white border whitespace-nowrap">🥪 سندوتشات</button>
+                    <button type="button" onclick="switchTab('crepes')" id="tab-crepes" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🌮 كريبات</button>
+                    <button type="button" onclick="switchTab('meals')" id="tab-meals" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🍱 وجبات</button>
+                    <button type="button" onclick="switchTab('pizza_italy')" id="tab-pizza_italy" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🍕 بيتزا إيطالي</button>
+                    <button type="button" onclick="switchTab('pizza_oriental')" id="tab-pizza_oriental" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🥘 بيتزا شرقي</button>
+                    <button type="button" onclick="switchTab('fateer_salty')" id="tab-fateer_salty" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🫓 فطير حادق</button>
+                    <button type="button" onclick="switchTab('fateer_sweet')" id="tab-fateer_sweet" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap">🍯 فطير حلو</button>
                 </div>
 
                 <div id="itemsGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[420px] overflow-y-auto p-1"></div>
             </div>
 
-            <!-- قسم تفاصيل الطلب -->
             <div class="lg:col-span-5 bg-gray-50 p-3 rounded border flex flex-col justify-between">
                 <div>
                     <h2 class="text-lg font-bold mb-2 text-gray-800 border-b pb-1">تفاصيل الأوردر الحالي</h2>
@@ -90,20 +88,20 @@
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="submitOrder()" class="bg-green-600 text-white p-2.5 rounded font-bold hover:bg-green-700 text-sm">حفظ وطباعة 🖨️</button>
-                        <button onclick="clearCart()" class="bg-gray-400 text-white p-2.5 rounded font-bold hover:bg-gray-500 text-sm">إلغاء</button>
+                        <button type="button" onclick="submitOrder()" class="bg-green-600 text-white p-2.5 rounded font-bold hover:bg-green-700 text-sm">حفظ وطباعة 🖨️</button>
+                        <button type="button" onclick="clearCart()" class="bg-gray-400 text-white p-2.5 rounded font-bold hover:bg-gray-500 text-sm">إلغاء</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ================= قسم المصروفات (مخفياً لحين الضغط عليه) ================= -->
+        <!-- قسم المصروفات -->
         <div id="expensesSection" class="hidden bg-gray-50 p-4 rounded border">
             <h2 class="text-xl font-bold mb-4 text-gray-800">💸 إدارة المصروفات اليومية</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                 <input type="text" id="expenseTitle" placeholder="بيان المصروف (مثلاً: شراء كبدة، كهرباء، عيش)" class="p-2.5 border rounded text-sm">
                 <input type="number" id="expenseAmount" placeholder="المبلغ (بالجنيه)" class="p-2.5 border rounded text-sm">
-                <button onclick="addExpense()" class="bg-red-600 text-white p-2.5 rounded font-bold hover:bg-red-700 text-sm">➕ إضافة المصروف</button>
+                <button type="button" onclick="addExpense()" class="bg-red-600 text-white p-2.5 rounded font-bold hover:bg-red-700 text-sm">➕ إضافة المصروف</button>
             </div>
 
             <h3 class="font-bold text-gray-700 mb-2">سجل مصروفات اليوم:</h3>
@@ -121,12 +119,12 @@
         </div>
     </div>
 
-    <!-- نافذة تقرير المبيعات والأرباح الصافية -->
+    <!-- نافذة تقرير الأرباح الصافية -->
     <div id="salesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4">
         <div class="bg-white p-6 rounded-lg max-w-md w-full shadow-lg">
             <h2 class="text-xl font-bold mb-4 text-gray-800">📊 تقرير المبيعات والأرباح الصافية</h2>
             <div id="salesReportText" class="text-md mb-6 text-gray-700 space-y-2">جاري الحساب...</div>
-            <button onclick="closeSalesReport()" class="w-full bg-blue-600 text-white p-2 rounded font-bold">إغلاق</button>
+            <button type="button" onclick="closeSalesReport()" class="w-full bg-blue-600 text-white p-2 rounded font-bold">إغلاق</button>
         </div>
     </div>
 
@@ -202,14 +200,14 @@
         };
 
         let currentCart = [];
-        let activeTab = 'sandwiches';
 
         function handleLogin() {
-            const user = document.getElementById('username').value.trim().toLowerCase();
-            const pass = document.getElementById('password').value.trim();
+            const userInput = document.getElementById('username').value.trim().toLowerCase();
+            const passInput = document.getElementById('password').value.trim();
             const errorMsg = document.getElementById('loginError');
 
-            if ((user === "elsharkawey" || user === "elsharkawey") && pass === ADMIN_PASS) {
+            // إتاحة الدخول بكلمة المرور 123456 بغض النظر عن طريقة كتابة اسم المستخدم
+            if (passInput === ADMIN_PASS) {
                 errorMsg.classList.add('hidden');
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('appScreen').classList.remove('hidden');
@@ -242,13 +240,13 @@
         }
 
         function switchTab(tabKey) {
-            activeTab = tabKey;
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`tab-${tabKey}`).classList.add('active');
+            const activeBtn = document.getElementById(`tab-${tabKey}`);
+            if (activeBtn) activeBtn.classList.add('active');
 
             const items = MENU_DATA[tabKey] || [];
             document.getElementById('itemsGrid').innerHTML = items.map(item => `
-                <button onclick="addToCart('${item.name}',${item.price})" class="bg-white border border-gray-200 p-2.5 rounded shadow-sm hover:border-red-500 text-right flex flex-col justify-between">
+                <button type="button" onclick="addToCart('${item.name}', ${item.price})" class="bg-white border border-gray-200 p-2.5 rounded shadow-sm hover:border-red-500 text-right flex flex-col justify-between">
                     <span class="font-bold text-gray-800 text-sm mb-1">${item.name}</span>
                     <span class="text-red-600 font-bold text-xs bg-red-50 w-fit px-1.5 py-0.5 rounded">${item.price} جنيه</span>
                 </button>
@@ -278,7 +276,7 @@
                     <span>${item.name} (x${item.qty})</span>
                     <div class="flex items-center gap-2">
                         <span class="font-bold">${itemTotal} ج</span>
-                        <button onclick="removeFromCart(${index})" class="text-red-500 font-bold px-1">✕</button>
+                        <button type="button" onclick="removeFromCart(${index})" class="text-red-500 font-bold px-1">✕</button>
                     </div>
                 </div>`;
             }).join('');
@@ -323,17 +321,16 @@
 
         function triggerDoublePrint(customer, items, total) {
             const dateStr = new Date().toLocaleString('ar-EG');
-            document.getElementById('pCustomerMeta').innerText = `العميل: ${customer} \vert{} التاريخ: ${dateStr}`;
-            document.getElementById('pCustomerItems').innerHTML = items.map(i => `<div>${i.name} × ${i.qty} =${i.price * i.qty} ج</div>`).join('');
+            document.getElementById('pCustomerMeta').innerText = `العميل: ${customer} | التاريخ: ${dateStr}`;
+            document.getElementById('pCustomerItems').innerHTML = items.map(i => `<div>${i.name} × ${i.qty} = ${i.price * i.qty} ج</div>`).join('');
             document.getElementById('pCustomerTotal').innerText = `الإجمالي الكلي: ${total} جنيه`;
 
-            document.getElementById('pKitchenMeta').innerText = `طاولة/عميل: ${customer} \vert{} الوقت: ${new Date().toLocaleTimeString('ar-EG')}`;
+            document.getElementById('pKitchenMeta').innerText = `طاولة/عميل: ${customer} | الوقت: ${new Date().toLocaleTimeString('ar-EG')}`;
             document.getElementById('pKitchenItems').innerHTML = items.map(i => `<div>▫️ ${i.name} (عدد: ${i.qty})</div>`).join('');
 
             window.print();
         }
 
-        // --- وظائف المصروفات ---
         async function addExpense() {
             const title = document.getElementById('expenseTitle').value.trim();
             const amount = parseFloat(document.getElementById('expenseAmount').value);
@@ -357,7 +354,7 @@
             const { data, error } = await _supabase.from('expenses').select('*').order('id', { ascending: false });
             const listDiv = document.getElementById('expensesList');
             if (error) {
-                listDiv.innerHTML = '<p class="text-red-500 text-sm">خطأ في جلب المصروفات (تأكد من إنشاء جدول expenses)</p>';
+                listDiv.innerHTML = '<p class="text-red-500 text-sm">خطأ في جلب المصروفات (تأكد من إنشاء جدول expenses في Supabase)</p>';
                 return;
             }
             if (!data || data.length === 0) {
@@ -368,7 +365,7 @@
             listDiv.innerHTML = data.map(e => `
                 <div class="flex justify-between items-center border-b pb-1 text-sm">
                     <div><strong>${e.title}</strong>: <span class="text-red-600 font-bold">${e.amount} جنيه</span></div>
-                    <button onclick="deleteExpense(${e.id})" class="text-red-500 font-bold px-2 py-0.5 rounded hover:bg-red-50 text-xs">حذف</button>
+                    <button type="button" onclick="deleteExpense(${e.id})" class="text-red-500 font-bold px-2 py-0.5 rounded hover:bg-red-50 text-xs">حذف</button>
                 </div>
             `).join('');
         }
@@ -395,5 +392,36 @@
 
                 return `
                 <div class="p-2 border rounded bg-white flex justify-between items-center text-xs">
-                    <div><strong>العميل:</strong> ${o.customer_name \vert{}\vert{} 'عام'} \vert{} <strong>الطلب:</strong> ${itemsText}</div>
-                    <span class="text-red-600
+                    <div><strong>العميل:</strong> ${o.customer_name || 'عام'} | <strong>الطلب:</strong> ${itemsText}</div>
+                    <span class="text-red-600 font-bold">${o.total_price} جنيه</span>
+                </div>
+            `}).join('');
+        }
+
+        async function showSalesReport() {
+            const ordersRes = await _supabase.from('orders').select('*');
+            const expensesRes = await _supabase.from('expenses').select('*');
+            const modal = document.getElementById('salesModal');
+            const reportText = document.getElementById('salesReportText');
+            
+            let totalRevenue = (ordersRes.data || []).reduce((sum, o) => sum + (parseFloat(o.total_price) || 0), 0);
+            let totalOrders = (ordersRes.data || []).length;
+            
+            let totalExpenses = (expensesRes.data || []).reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+            let netProfit = totalRevenue - totalExpenses;
+
+            reportText.innerHTML = `
+                🔹 إجمالي عدد الطلبات: <strong>${totalOrders}</strong><br>
+                💰 إجمالي الإيرادات (المبيعات): <strong class="text-green-600">${totalRevenue} جنيه</strong><br>
+                💸 إجمالي المصروفات: <strong class="text-red-600">${totalExpenses} جنيه</strong><hr class="my-2">
+                📈 صافي الربح الفعلي: <strong class="text-blue-600 text-lg">${netProfit} جنيه</strong>
+            `;
+            modal.classList.remove('hidden');
+        }
+
+        function closeSalesReport() {
+            document.getElementById('salesModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
