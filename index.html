@@ -30,9 +30,10 @@
     </div>
 
     <script>
-        // استبدل المفاتيح أسفله بمفاتيح Supabase الخاصة بمشروعك
         const SUPABASE_URL = 'https://lgwpqauwpzyvnyozkskn.supabase.co';
-        const SUPABASE_ANON_KEY = 'ضع_مفتاح_Publishable_Key_هنا';
+        
+        // ⚠️ مهم جداً: استبدل النص اللي بين القوسين بالمفتاح الطويل اللي نسخناه من صفحة API Keys في Supabase (اللي بيبدأ بـ sb_publishable_)
+        const SUPABASE_ANON_KEY = 'حط_المفتاح_الخاص_بيك_هنا';
         
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -40,38 +41,50 @@
             const { data, error } = await _supabase.from('orders').select('*').order('id', { ascending: false });
             const listDiv = document.getElementById('ordersList');
             if (error) {
-                listDiv.innerHTML = '<p class="text-red-500">خطأ في جلب الطلبات</p>';
+                console.error(error);
+                listDiv.innerHTML = '<p class="text-red-500">خطأ في جلب الطلبات، تأكد من مفتاح API Key</p>';
                 return;
             }
             if (!data || data.length === 0) {
                 listDiv.innerHTML = '<p class="text-gray-500">لا توجد طلبات حالياً</p>';
                 return;
             }
-            listDiv.innerHTML = data.map(o => `
+            listDiv.innerHTML = data.map(o => {
+                let itemsText = typeof o.items === 'string' ? o.items : JSON.stringify(o.items);
+                return `
                 <div class="p-3 border rounded bg-white shadow-sm flex justify-between items-center">
                     <div>
                         <strong>العميل/الطاولة:</strong> ${o.customer_name || 'بدون اسم'} <br>
-                        <strong>الطلب:</strong> ${o.items} <br>
+                        <strong>الطلب:</strong> ${itemsText} <br>
                         <strong>الإجمالي:</strong> ${o.total_price} جنيه
                     </div>
-                    <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded font-bold text-sm">${o.status}</span>
+                    <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded font-bold text-sm">${o.status || 'جديد'}</span>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         async function addOrder() {
             const customer_name = document.getElementById('customerName').value;
-            const items = document.getElementById('orderDetails').value;
+            const itemsText = document.getElementById('orderDetails').value;
             const total_price = parseFloat(document.getElementById('totalPrice').value);
 
-            if (!items || !total_price) {
+            if (!itemsText || !total_price) {
                 alert('من فضلك اكتب تفاصيل الطلب والإجمالي');
                 return;
             }
 
-            const { error } = await _supabase.from('orders').insert([{ customer_name, items, total_price }]);
+            // نحول النص لـ JSON عشان ينفع يتحفظ في جدول Supabase بدون مشاكل
+            const itemsData = JSON.stringify(itemsText);
+
+            const { error } = await _supabase.from('orders').insert([{ 
+                customer_name: customer_name, 
+                items: itemsData, 
+                total_price: total_price 
+            }]);
+
             if (error) {
-                alert('حدث خطأ أثناء حفظ الطلب');
+                console.error(error);
+                alert('حدث خطأ أثناء حفظ الطلب: ' + error.message);
             } else {
                 document.getElementById('customerName').value = '';
                 document.getElementById('orderDetails').value = '';
