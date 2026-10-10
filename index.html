@@ -40,13 +40,13 @@
         <p id="loginError" class="text-red-500 text-center mt-3 text-sm hidden">خطأ في كلمة المرور!</p>
     </div>
 
-    <!-- نافذة كلمة مرور الإدارة (خاصة بالخزنة والمصروفات والأرباح) -->
+    <!-- نافذة كلمة مرور الإدارة (خاصة بحركة الخزنة فقط) -->
     <div id="adminAuthModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white p-6 rounded-lg max-w-sm w-full shadow-lg">
-            <h2 class="text-xl font-bold mb-3 text-gray-800 text-center">🔐 بوابة الإدارة</h2>
-            <p class="text-sm text-gray-600 mb-4 text-center">هذه المنطقة محمية بكلمة مرور خاصة للإدارة فقط</p>
+            <h2 class="text-xl font-bold mb-3 text-gray-800 text-center">🔐 إدارة حركة الخزنة</h2>
+            <p class="text-sm text-gray-600 mb-4 text-center">هذه القسم محمي بكلمة مرور خاصة بالإدارة فقط</p>
             <input type="password" id="adminPasswordInput" placeholder="اكتب كلمة مرور الإدارة" class="w-full p-3 border rounded mb-3 text-center text-lg">
-            <button type="button" onclick="verifyAdminPassword()" class="w-full bg-red-700 text-white p-2.5 rounded font-bold hover:bg-red-800 mb-2">دخول الإدارة</button>
+            <button type="button" onclick="verifyAdminPassword()" class="w-full bg-red-700 text-white p-2.5 rounded font-bold hover:bg-red-800 mb-2">دخول للخزنة</button>
             <button type="button" onclick="closeAdminAuth()" class="w-full bg-gray-300 text-gray-700 p-2 rounded font-bold hover:bg-gray-400 text-sm">إلغاء</button>
             <p id="adminAuthError" class="text-red-500 text-center mt-2 text-xs hidden">كلمة مرور الإدارة غير صحيحة!</p>
         </div>
@@ -60,10 +60,10 @@
             <div class="flex items-center gap-2 flex-wrap">
                 <div class="flex bg-gray-200 p-1 rounded font-bold text-sm">
                     <button type="button" onclick="switchMainView('pos')" id="mainTabPos" class="main-tab active px-3 py-1.5 rounded transition">🛒 الكاشير والطلبات</button>
-                    <button type="button" onclick="requestAdminAccess('expenses')" id="mainTabExpenses" class="main-tab px-3 py-1.5 rounded transition">💸 المصروفات اليومية 🔒</button>
-                    <button type="button" onclick="requestAdminAccess('treasury')" id="mainTabTreasury" class="main-tab px-3 py-1.5 rounded transition">🏦 حركة الخزنة 🔒</button>
+                    <button type="button" onclick="switchMainView('expenses')" id="mainTabExpenses" class="main-tab px-3 py-1.5 rounded transition">💸 المصروفات اليومية</button>
+                    <button type="button" onclick="requestTreasuryAccess()" id="mainTabTreasury" class="main-tab px-3 py-1.5 rounded transition">🏦 حركة الخزنة 🔒</button>
                 </div>
-                <button type="button" onclick="requestAdminAccess('sales')" class="bg-blue-600 text-white px-3 py-1.5 rounded font-bold hover:bg-blue-700 text-sm">📊 تقرير الأرباح 🔒</button>
+                <button type="button" onclick="showSalesReport()" class="bg-blue-600 text-white px-3 py-1.5 rounded font-bold hover:bg-blue-700 text-sm">📊 تقرير الأرباح</button>
                 <button type="button" onclick="handleLogout()" class="bg-gray-300 text-gray-800 px-3 py-1.5 rounded font-bold hover:bg-gray-400 text-sm">خروج</button>
             </div>
         </div>
@@ -108,9 +108,9 @@
             </div>
         </div>
 
-        <!-- قسم المصروفات (محمي) -->
+        <!-- قسم المصروفات (مفتوح طبيعي) -->
         <div id="expensesSection" class="hidden bg-gray-50 p-4 rounded border">
-            <h2 class="text-xl font-bold mb-4 text-gray-800">💸 إدارة المصروفات اليومية (خاص بالإدارة)</h2>
+            <h2 class="text-xl font-bold mb-4 text-gray-800">💸 إدارة المصروفات اليومية</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                 <input type="text" id="expenseTitle" placeholder="بيان المصروف (مثلاً: شراء كبدة، كهرباء)" class="p-2.5 border rounded text-sm">
                 <input type="number" id="expenseAmount" placeholder="المبلغ (بالجنيه)" class="p-2.5 border rounded text-sm">
@@ -123,7 +123,7 @@
             </div>
         </div>
 
-        <!-- قسم حركة الخزنة (محمي) -->
+        <!-- قسم حركة الخزنة (محمي بكلمة المرور) -->
         <div id="treasurySection" class="hidden bg-gray-50 p-4 rounded border">
             <h2 class="text-xl font-bold mb-4 text-gray-800">🏦 كشف حركة الخزنة الكاملة (خاص بالإدارة)</h2>
             
@@ -169,7 +169,7 @@
         </div>
     </div>
 
-    <!-- نافذة تقرير الأرباح الصافية (محمية) -->
+    <!-- نافذة تقرير الأرباح الصافية -->
     <div id="salesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4">
         <div class="bg-white p-6 rounded-lg max-w-md w-full shadow-lg">
             <h2 class="text-xl font-bold mb-4 text-gray-800">📊 تقرير المبيعات والأرباح الصافية</h2>
@@ -208,9 +208,8 @@
             console.error("Supabase Error:", e);
         }
 
-        // 🔐 كلمة مرور الإدارة الخاصة (يمكنك تغييرها هنا متى شئت، مثلاً خليناها 7777 أو أي رقم)
+        // 🔐 كلمة مرور الإدارة الخاصة بحركة الخزنة (يمكنك تعديلها هنا، مثلاً: 7777)
         const ADMIN_SECRET_PASS = "7777";
-        let pendingAction = null;
 
         const MENU_DATA = {
             sandwiches: [
@@ -265,6 +264,7 @@
             document.getElementById('appScreen').classList.remove('hidden');
             switchTab('sandwiches');
             fetchOrders();
+            fetchExpenses();
         }
 
         function handleLogout() {
@@ -272,9 +272,8 @@
             document.getElementById('loginScreen').style.display = 'block';
         }
 
-        // نظام طلب كلمة مرور الإدارة
-        function requestAdminAccess(actionType) {
-            pendingAction = actionType;
+        // طلب كلمة المرور عند محاولة فتح الخزنة فقط
+        function requestTreasuryAccess() {
             document.getElementById('adminPasswordInput').value = '';
             document.getElementById('adminAuthError').classList.add('hidden');
             document.getElementById('adminAuthModal').classList.remove('hidden');
@@ -282,7 +281,6 @@
 
         function closeAdminAuth() {
             document.getElementById('adminAuthModal').classList.add('hidden');
-            pendingAction = null;
         }
 
         function verifyAdminPassword() {
@@ -291,13 +289,7 @@
 
             if (enteredPass === ADMIN_SECRET_PASS) {
                 closeAdminAuth();
-                if (pendingAction === 'expenses') {
-                    switchMainView('expenses');
-                } else if (pendingAction === 'treasury') {
-                    switchMainView('treasury');
-                } else if (pendingAction === 'sales') {
-                    showSalesReport();
-                }
+                switchMainView('treasury');
             } else {
                 errorText.classList.remove('hidden');
             }
