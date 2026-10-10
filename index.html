@@ -36,8 +36,8 @@
             <label class="block text-gray-700 mb-2 font-bold">كلمة المرور</label>
             <input type="password" id="password" value="123456" placeholder="كلمة المرور" class="w-full p-3 border rounded">
         </div>
-        <button type="button" onclick="doLogin(event)" class="w-full bg-red-600 text-white p-3 rounded font-bold hover:bg-red-700 cursor-pointer">دخول للسيستم</button>
-        <p id="loginError" class="text-red-500 text-center mt-3 text-sm hidden">خطأ في كلمة المرور!</p>
+        <button type="button" onclick="doLogin()" class="w-full bg-red-600 text-white p-3 rounded font-bold hover:bg-red-700 cursor-pointer">دخول للسيستم</button>
+        <p id="loginError" class="text-red-500 text-center mt-3 text-sm hidden">خطأ في اسم المستخدم أو كلمة المرور!</p>
     </div>
 
     <!-- نافذة كلمة مرور الإدارة (خاصة بحركة الخزنة فقط) -->
@@ -291,13 +291,21 @@
 
         let currentCart = [];
 
-        function doLogin(e) {
-            if (e) e.preventDefault();
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('appScreen').classList.remove('hidden');
-            switchTab('sandwiches');
-            fetchOrders();
-            fetchExpenses();
+        function doLogin() {
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
+            const err = document.getElementById('loginError');
+
+            if (u === 'elsharkawey' && p === '123456') {
+                err.classList.add('hidden');
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appScreen').classList.remove('hidden');
+                switchTab('sandwiches');
+                fetchOrders();
+                fetchExpenses();
+            } else {
+                err.classList.remove('hidden');
+            }
         }
 
         function handleLogout() {
@@ -591,25 +599,29 @@
             `).join('');
         }
 
-        // دالة ترحيل الخزنة وتصفية الحسابات والطباعة
         async function processTreasuryTransfer() {
             if (!confirm(`هل أنت متأكد من إجراء ترحيل وتصفية الخزنة الآن؟\n\nإجمالي الوارد: ${lastTreasuryData.totalIn} ج\nإجمالي المصروفات: ${lastTreasuryData.totalOut} ج\nالربح الفعلي/المستلم: ${lastTreasuryData.balance} ج`)) {
                 return;
             }
 
-            // 1. إعداد وتحديث بيانات إيصال الطباعة
             document.getElementById('tPrintTime').innerText = `التاريخ والوقت: ${new Date().toLocaleString('ar-EG')}`;
             document.getElementById('tPrintIn').innerText = `${lastTreasuryData.totalIn} جنيه`;
             document.getElementById('tPrintOut').innerText = `${lastTreasuryData.totalOut} جنيه`;
             document.getElementById('tPrintBalance').innerText = `${lastTreasuryData.balance} جنيه`;
 
-            // 2. أمر الطباعة فوراً
             window.print();
 
-            // 3. تصفير قاعدة البيانات لتصفية الحسابات لليوم/الشيفت الجديد
             if (_supabase) {
-                // حذف سجلات المصروفات والطلبات لتصفير الخزنة
                 await _supabase.from('expenses').delete().neq('id', 0);
                 await _supabase.from('orders').delete().neq('id', 0);
                 
-                alert('تم تصفية الخزنة وترحيل الأرباح وت
+                alert('تم تصفية الخزنة وترحيل الأرباح وتصفير الحسابات بنجاح! جاهز لليوم/الشيفت الجديد 👍');
+                
+                fetchTreasuryLogs();
+                fetchExpenses();
+                fetchOrders();
+            }
+        }
+    </script>
+</body>
+</html>
