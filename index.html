@@ -51,11 +51,11 @@
 
     <script>
         const SUPABASE_URL = 'https://lgwpqauwpzyvnyozkskn.supabase.co';
-        const SUPABASE_ANON_KEY = 'حط_مفتاح_Publishable_هنا'; // تأكد من وضع مفتاح Publishable الصحيح هنا
+        const SUPABASE_ANON_KEY = 'sb_publishable_lVZCBA_yIAQUM_H3_VCDkw_TpLOo8nK';
         
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // بيانات الدخول الخاصة بالمطعم (تقدر تغيرها براحتك هنا)
+        // بيانات الدخول الخاصة بالمطعم
         const ADMIN_USER = "elsharkawey";
         const ADMIN_PASS = "123456";
 
@@ -84,7 +84,8 @@
             const { data, error } = await _supabase.from('orders').select('*').order('id', { ascending: false });
             const listDiv = document.getElementById('ordersList');
             if (error) {
-                listDiv.innerHTML = '<p class="text-red-500">خطأ في جلب الطلبات، تأكد من مفتاح API Key</p>';
+                console.error(error);
+                listDiv.innerHTML = '<p class="text-red-500">خطأ في جلب الطلبات</p>';
                 return;
             }
             if (!data || data.length === 0) {
@@ -124,6 +125,7 @@
             }]);
 
             if (error) {
+                console.error(error);
                 alert('حدث خطأ أثناء حفظ الطلب: ' + error.message);
             } else {
                 document.getElementById('customerName').value = '';
