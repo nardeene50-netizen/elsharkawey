@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مطعم كبده ومخ الشرقاوي - كاشير ومصروفات</title>
+    <title>مطعم كبده ومخ الشرقاوي - حركة الخزنة والسيستم</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -40,15 +40,16 @@
         <p id="loginError" class="text-red-500 text-center mt-3 text-sm hidden">اسم المستخدم أو كلمة المرور غير صحيحة!</p>
     </div>
 
-    <!-- شاشة نظام الكاشير والمصروفات -->
+    <!-- شاشة نظام الكاشير، المصروفات، وحركة الخزنة -->
     <div id="appScreen" class="max-w-7xl mx-auto bg-white p-4 rounded-lg shadow-lg hidden">
         <!-- شريط علوي -->
         <div class="flex justify-between items-center mb-4 border-b pb-3 flex-wrap gap-2">
             <h1 class="text-2xl font-bold text-red-700">مطعم كبده ومخ الشرقاوي 🥩🧠</h1>
             <div class="flex items-center gap-2 flex-wrap">
                 <div class="flex bg-gray-200 p-1 rounded font-bold text-sm">
-                    <button type="button" onclick="switchMainView('pos')" id="mainTabPos" class="main-tab active px-3 py-1.5 rounded transition">🛒 قسم الكاشير والطلبات</button>
-                    <button type="button" onclick="switchMainView('expenses')" id="mainTabExpenses" class="main-tab px-3 py-1.5 rounded transition">💸 قسم المصروفات اليومية</button>
+                    <button type="button" onclick="switchMainView('pos')" id="mainTabPos" class="main-tab active px-3 py-1.5 rounded transition">🛒 الكاشير والطلبات</button>
+                    <button type="button" onclick="switchMainView('expenses')" id="mainTabExpenses" class="main-tab px-3 py-1.5 rounded transition">💸 المصروفات اليومية</button>
+                    <button type="button" onclick="switchMainView('treasury')" id="mainTabTreasury" class="main-tab px-3 py-1.5 rounded transition">🏦 حركة الخزنة</button>
                 </div>
                 <button type="button" onclick="showSalesReport()" class="bg-blue-600 text-white px-3 py-1.5 rounded font-bold hover:bg-blue-700 text-sm">📊 تقرير الأرباح</button>
                 <button type="button" onclick="handleLogout()" class="bg-gray-300 text-gray-800 px-3 py-1.5 rounded font-bold hover:bg-gray-400 text-sm">خروج</button>
@@ -110,8 +111,46 @@
             </div>
         </div>
 
-        <!-- قائمة الطلبات المسجلة -->
-        <div class="mt-4 bg-gray-50 p-3 rounded border">
+        <!-- قسم حركة الخزنة الشامل -->
+        <div id="treasurySection" class="hidden bg-gray-50 p-4 rounded border">
+            <h2 class="text-xl font-bold mb-4 text-gray-800">🏦 كشف حركة الخزنة الكاملة</h2>
+            
+            <!-- ملخص رصيد الخزنة -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-green-50 border border-green-200 p-4 rounded text-center">
+                    <span class="block text-gray-600 text-sm font-bold">إجمالي الإيرادات (مبيعات) 🟢</span>
+                    <span id="treasuryIn" class="text-2xl font-bold text-green-600">0 جنيه</span>
+                </div>
+                <div class="bg-red-50 border border-red-200 p-4 rounded text-center">
+                    <span class="block text-gray-600 text-sm font-bold">إجمالي المسحوبات (مصروفات) 🔴</span>
+                    <span id="treasuryOut" class="text-2xl font-bold text-red-600">0 جنيه</span>
+                </div>
+                <div class="bg-blue-50 border border-blue-200 p-4 rounded text-center">
+                    <span class="block text-gray-600 text-sm font-bold">الرصيد المالي الحالي بالخزنة 💰</span>
+                    <span id="treasuryBalance" class="text-2xl font-bold text-blue-600">0 جنيه</span>
+                </div>
+            </div>
+
+            <h3 class="font-bold text-gray-700 mb-2">سجل الحركات المالية (بالتاريخ والوقت):</h3>
+            <div class="bg-white border rounded overflow-x-auto">
+                <table class="w-full text-right border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-gray-100 border-b">
+                            <th class="p-2.5">النوع</th>
+                            <th class="p-2.5">البيان / التفاصيل</th>
+                            <th class="p-2.5">المبلغ</th>
+                            <th class="p-2.5">التاريخ والوقت</th>
+                        </tr>
+                    </thead>
+                    <tbody id="treasuryLogs" class="divide-y">
+                        <tr><td colspan="4" class="p-4 text-center text-gray-500">جاري تحميل حركة الخزنة...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- قائمة الطلبات المسجلة في القسم الرئيسي -->
+        <div id="recentOrdersBlock" class="mt-4 bg-gray-50 p-3 rounded border">
             <h2 class="text-md font-bold mb-2 text-gray-800">آخر الطلبات المسجلة</h2>
             <div id="ordersList" class="space-y-2 max-h-[160px] overflow-y-auto">
                 <p class="text-gray-500 text-sm">جاري التحميل...</p>
@@ -206,7 +245,6 @@
             const passInput = document.getElementById('password').value.trim();
             const errorMsg = document.getElementById('loginError');
 
-            // إتاحة الدخول بكلمة المرور 123456 بغض النظر عن طريقة كتابة اسم المستخدم
             if (passInput === ADMIN_PASS) {
                 errorMsg.classList.add('hidden');
                 document.getElementById('loginScreen').classList.add('hidden');
@@ -225,17 +263,28 @@
         }
 
         function switchMainView(view) {
+            document.getElementById('posSection').classList.add('hidden');
+            document.getElementById('expensesSection').classList.add('hidden');
+            document.getElementById('treasurySection').classList.add('hidden');
+            document.getElementById('recentOrdersBlock').classList.add('hidden');
+
+            document.getElementById('mainTabPos').classList.remove('active');
+            document.getElementById('mainTabExpenses').classList.remove('active');
+            document.getElementById('mainTabTreasury').classList.remove('active');
+
             if (view === 'pos') {
                 document.getElementById('posSection').classList.remove('hidden');
-                document.getElementById('expensesSection').classList.add('hidden');
+                document.getElementById('recentOrdersBlock').classList.remove('hidden');
                 document.getElementById('mainTabPos').classList.add('active');
-                document.getElementById('mainTabExpenses').classList.remove('active');
-            } else {
-                document.getElementById('posSection').classList.add('hidden');
+            } else if (view === 'expenses') {
                 document.getElementById('expensesSection').classList.remove('hidden');
+                document.getElementById('recentOrdersBlock').classList.remove('hidden');
                 document.getElementById('mainTabExpenses').classList.add('active');
-                document.getElementById('mainTabPos').classList.remove('active');
                 fetchExpenses();
+            } else if (view === 'treasury') {
+                document.getElementById('treasurySection').classList.remove('hidden');
+                document.getElementById('mainTabTreasury').classList.add('active');
+                fetchTreasuryLogs();
             }
         }
 
@@ -351,77 +400,3 @@
         }
 
         async function fetchExpenses() {
-            const { data, error } = await _supabase.from('expenses').select('*').order('id', { ascending: false });
-            const listDiv = document.getElementById('expensesList');
-            if (error) {
-                listDiv.innerHTML = '<p class="text-red-500 text-sm">خطأ في جلب المصروفات (تأكد من إنشاء جدول expenses في Supabase)</p>';
-                return;
-            }
-            if (!data || data.length === 0) {
-                listDiv.innerHTML = '<p class="text-gray-500 text-sm">لا توجد مصروفات مسجلة</p>';
-                return;
-            }
-
-            listDiv.innerHTML = data.map(e => `
-                <div class="flex justify-between items-center border-b pb-1 text-sm">
-                    <div><strong>${e.title}</strong>: <span class="text-red-600 font-bold">${e.amount} جنيه</span></div>
-                    <button type="button" onclick="deleteExpense(${e.id})" class="text-red-500 font-bold px-2 py-0.5 rounded hover:bg-red-50 text-xs">حذف</button>
-                </div>
-            `).join('');
-        }
-
-        async function deleteExpense(id) {
-            if (confirm('هل أنت متأكد من حذف هذا المصروف؟')) {
-                await _supabase.from('expenses').delete().eq('id', id);
-                fetchExpenses();
-            }
-        }
-
-        async function fetchOrders() {
-            const { data, error } = await _supabase.from('orders').select('*').order('id', { ascending: false }).limit(10);
-            const listDiv = document.getElementById('ordersList');
-            if (error || !data) return;
-            
-            listDiv.innerHTML = data.map(o => {
-                let itemsText = '';
-                try {
-                    let parsed = typeof o.items === 'string' ? JSON.parse(o.items) : o.items;
-                    if (Array.isArray(parsed)) { itemsText = parsed.map(i => `${i.name} (x${i.qty})`).join('، '); } 
-                    else { itemsText = o.items; }
-                } catch(e) { itemsText = o.items; }
-
-                return `
-                <div class="p-2 border rounded bg-white flex justify-between items-center text-xs">
-                    <div><strong>العميل:</strong> ${o.customer_name || 'عام'} | <strong>الطلب:</strong> ${itemsText}</div>
-                    <span class="text-red-600 font-bold">${o.total_price} جنيه</span>
-                </div>
-            `}).join('');
-        }
-
-        async function showSalesReport() {
-            const ordersRes = await _supabase.from('orders').select('*');
-            const expensesRes = await _supabase.from('expenses').select('*');
-            const modal = document.getElementById('salesModal');
-            const reportText = document.getElementById('salesReportText');
-            
-            let totalRevenue = (ordersRes.data || []).reduce((sum, o) => sum + (parseFloat(o.total_price) || 0), 0);
-            let totalOrders = (ordersRes.data || []).length;
-            
-            let totalExpenses = (expensesRes.data || []).reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
-            let netProfit = totalRevenue - totalExpenses;
-
-            reportText.innerHTML = `
-                🔹 إجمالي عدد الطلبات: <strong>${totalOrders}</strong><br>
-                💰 إجمالي الإيرادات (المبيعات): <strong class="text-green-600">${totalRevenue} جنيه</strong><br>
-                💸 إجمالي المصروفات: <strong class="text-red-600">${totalExpenses} جنيه</strong><hr class="my-2">
-                📈 صافي الربح الفعلي: <strong class="text-blue-600 text-lg">${netProfit} جنيه</strong>
-            `;
-            modal.classList.remove('hidden');
-        }
-
-        function closeSalesReport() {
-            document.getElementById('salesModal').classList.add('hidden');
-        }
-    </script>
-</body>
-</html>
