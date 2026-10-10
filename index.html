@@ -33,7 +33,7 @@
             <input type="password" id="password" placeholder="كلمة المرور" class="w-full p-3 border rounded">
         </div>
         <button onclick="handleLogin()" class="w-full bg-red-600 text-white p-3 rounded font-bold hover:bg-red-700">دخول للسيستم</button>
-        <p id="loginError" class="text-red-500 text-center mt-3 text-sm hidden">بيانات الدخول غير صحيحة!</p>
+        <p id="loginError" class="text-red-500 text-center mt-3 text-sm hidden">اسم المستخدم أو كلمة المرور غير صحيحة!</p>
     </div>
 
     <!-- شاشة نظام الكاشير والطلبات -->
@@ -49,7 +49,7 @@
         
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
             
-            <!-- قسم المنيو والأقسام (8 أعمدة) -->
+            <!-- قسم المنيو والأقسام -->
             <div class="lg:col-span-7 bg-gray-50 p-3 rounded border">
                 <!-- أزرار الأقسام الرئيسية -->
                 <div class="flex gap-1 overflow-x-auto pb-2 mb-3 border-b text-sm font-bold">
@@ -68,7 +68,7 @@
                 </div>
             </div>
 
-            <!-- قسم تفاصيل الطلب والفاتورة (5 أعمدة) -->
+            <!-- قسم تفاصيل الطلب والفاتورة -->
             <div class="lg:col-span-5 bg-gray-50 p-3 rounded border flex flex-col justify-between">
                 <div>
                     <h2 class="text-lg font-bold mb-2 text-gray-800 border-b pb-1">تفاصيل الأوردر الحالى</h2>
@@ -126,3 +126,231 @@
         </div>
 
         <!-- بون المطبخ -->
+        <div style="text-align: center; padding-top: 20px;">
+            <h2 style="font-size: 22px; font-weight: bold;">[ بون المطبخ 👨‍🍳 ]</h2>
+            <p style="font-size: 14px; font-weight: bold;" id="pKitchenMeta"></p>
+            <hr style="margin: 10px 0;">
+            <div id="pKitchenItems" style="text-align: right; font-size: 16px; font-weight: bold;"></div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://lgwpqauwpzyvnyozkskn.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_lVZCBA_yIAQUM_H3_VCDkw_TpLOo8nK';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const ADMIN_PASS = "123456";
+
+        // قاعدة بيانات أصناف المنيو حسب الأقسام
+        const MENU_DATA = {
+            sandwiches: [
+                { name: 'سندوتش كبده', price: 25 },
+                { name: 'سندوتش مخ', price: 30 },
+                { name: 'سندوتش جمبري', price: 40 },
+                { name: 'سندوتش شاورما', price: 35 },
+                { name: 'سندوتش بطاطس', price: 15 }
+            ],
+            crepes: [
+                { name: 'كريب شاورما فراخ', price: 60 },
+                { name: 'كريب شاورما لحمه', price: 65 },
+                { name: 'كريب جمبري', price: 75 },
+                { name: 'كريب تونه', price: 55 },
+                { name: 'كريب استربس', price: 60 },
+                { name: 'كريب سجق', price: 55 }
+            ],
+            meals: [
+                { name: 'وجبة كبدة ومخ', price: 90 },
+                { name: 'وجبة جمبري مقلي', price: 110 },
+                { name: 'وجبة شاورما مشكل', price: 95 },
+                { name: 'وجبة استربس عائلي', price: 120 }
+            ],
+            pizza_italy: [
+                { name: 'بيتزا مارجريتا إيطالي', price: 65 },
+                { name: 'بيتزا كبدة ومخ إيطالي', price: 85 },
+                { name: 'بيتزا شاورما فراخ', price: 80 },
+                { name: 'بيتزا جمبري إيطالي', price: 100 }
+            ],
+            pizza_oriental: [
+                { name: 'بيتزا شرقي كبدة وسجق', price: 85 },
+                { name: 'بيتزا شرقي مشكل لحوم', price: 95 },
+                { name: 'بيتزا شرقي مشكل جبن', price: 75 }
+            ],
+            fateer_salty: [
+                { name: 'فطير حادق كبدة ومخ', price: 90 },
+                { name: 'فطير حادق سجق وبسطرمة', price: 85 },
+                { name: 'فطير حادق مشكل جبن', price: 70 }
+            ],
+            fateer_sweet: [
+                { name: 'فطير بياض ونوتيلا', price: 60 },
+                { name: 'فطير كاسترد وعسل', price: 45 },
+                { name: 'فطير مكسرات وسكر', price: 50 }
+            ]
+        };
+
+        let currentCart = [];
+        let activeTab = 'sandwiches';
+
+        function handleLogin() {
+            const user = document.getElementById('username').value.trim().toLowerCase();
+            const pass = document.getElementById('password').value.trim();
+            const errorMsg = document.getElementById('loginError');
+
+            // يقبل elsharkawey أو elsharkawey
+            if ((user === "elsharkawey" || user === "elsharkawey") && pass === ADMIN_PASS) {
+                errorMsg.classList.add('hidden');
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('appScreen').classList.remove('hidden');
+                switchTab('sandwiches');
+                fetchOrders();
+            } else {
+                errorMsg.classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            document.getElementById('appScreen').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+        }
+
+        function switchTab(tabKey) {
+            activeTab = tabKey;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${tabKey}`).classList.add('active');
+
+            const items = MENU_DATA[tabKey] || [];
+            const gridDiv = document.getElementById('itemsGrid');
+            gridDiv.innerHTML = items.map(item => `
+                <button onclick="addToCart('${item.name}', ${item.price})" class="bg-white border border-gray-200 p-2.5 rounded shadow-sm hover:border-red-500 text-right flex flex-col justify-between">
+                    <span class="font-bold text-gray-800 text-sm mb-1">${item.name}</span>
+                    <span class="text-red-600 font-bold text-xs bg-red-50 w-fit px-1.5 py-0.5 rounded">${item.price} جنيه</span>
+                </button>
+            `).join('');
+        }
+
+        function addToCart(name, price) {
+            const existing = currentCart.find(i => i.name === name);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                currentCart.push({ name, price, qty: 1 });
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const cartDiv = document.getElementById('cartItems');
+            const totalDiv = document.getElementById('cartTotal');
+            if (currentCart.length === 0) {
+                cartDiv.innerHTML = '<span class="text-gray-400">اختر الأصناف من القائمة...</span>';
+                totalDiv.innerText = '0 جنيه';
+                return;
+            }
+            let total = 0;
+            cartDiv.innerHTML = currentCart.map((item, index) => {
+                let itemTotal = item.price * item.qty;
+                total += itemTotal;
+                return `<div class="flex justify-between items-center mb-1 border-b pb-1">
+                    <span>${item.name} (x${item.qty})</span>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold">${itemTotal} ج</span>
+                        <button onclick="removeFromCart(${index})" class="text-red-500 font-bold px-1">✕</button>
+                    </div>
+                </div>`;
+            }).join('');
+            totalDiv.innerText = total + ' جنيه';
+        }
+
+        function removeFromCart(index) {
+            currentCart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function clearCart() {
+            currentCart = [];
+            document.getElementById('customerName').value = '';
+            updateCartUI();
+        }
+
+        async function submitOrder() {
+            const customer_name = document.getElementById('customerName').value || 'عميل عام';
+            if (currentCart.length === 0) {
+                alert('من فضلك أضف أصناف للأوردر أولاً!');
+                return;
+            }
+            let total_price = currentCart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            const itemsData = JSON.stringify(currentCart);
+
+            const { error } = await _supabase.from('orders').insert([{ 
+                customer_name: customer_name, 
+                items: itemsData, 
+                total_price: total_price,
+                status: 'جديد'
+            }]);
+
+            if (error) {
+                alert('خطأ في حفظ الطلب: ' + error.message);
+            } else {
+                triggerDoublePrint(customer_name, currentCart, total_price);
+                clearCart();
+                fetchOrders();
+            }
+        }
+
+        function triggerDoublePrint(customer, items, total) {
+            const dateStr = new Date().toLocaleString('ar-EG');
+            
+            document.getElementById('pCustomerMeta').innerText = `العميل: ${customer} | التاريخ: ${dateStr}`;
+            document.getElementById('pCustomerItems').innerHTML = items.map(i => `<div>${i.name} × ${i.qty} = ${i.price * i.qty} ج</div>`).join('');
+            document.getElementById('pCustomerTotal').innerText = `الإجمالي الكلي: ${total} جنيه`;
+
+            document.getElementById('pKitchenMeta').innerText = `طاولة/عميل: ${customer} | الوقت: ${new Date().toLocaleTimeString('ar-EG')}`;
+            document.getElementById('pKitchenItems').innerHTML = items.map(i => `<div>▫️ ${i.name} (عدد: ${i.qty})</div>`).join('');
+
+            window.print();
+        }
+
+        async function fetchOrders() {
+            const { data, error } = await _supabase.from('orders').select('*').order('id', { ascending: false }).limit(10);
+            const listDiv = document.getElementById('ordersList');
+            if (error || !data) return;
+            
+            listDiv.innerHTML = data.map(o => {
+                let itemsText = '';
+                try {
+                    let parsed = typeof o.items === 'string' ? JSON.parse(o.items) : o.items;
+                    if (Array.isArray(parsed)) {
+                        itemsText = parsed.map(i => `${i.name} (x${i.qty})`).join('، ');
+                    } else { itemsText = o.items; }
+                } catch(e) { itemsText = o.items; }
+
+                return `
+                <div class="p-2 border rounded bg-white flex justify-between items-center text-xs">
+                    <div>
+                        <strong>العميل:</strong> ${o.customer_name || 'عام'} | 
+                        <strong>الطلب:</strong> ${itemsText}
+                    </div>
+                    <span class="text-red-600 font-bold">${o.total_price} جنيه</span>
+                </div>
+            `}).join('');
+        }
+
+        async function showSalesReport() {
+            const { data, error } = await _supabase.from('orders').select('*');
+            const modal = document.getElementById('salesModal');
+            const reportText = document.getElementById('salesReportText');
+            
+            if (error) {
+                reportText.innerText = 'حدث خطأ في جلب المبيعات';
+            } else {
+                let totalRevenue = data.reduce((sum, o) => sum + (parseFloat(o.total_price) || 0), 0);
+                reportText.innerHTML = `عدد الطلبات: <strong>${data.length}</strong><br>إجمالي مبيعات اليوم: <strong class="text-green-600">${totalRevenue} جنيه</strong>`;
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeSalesReport() {
+            document.getElementById('salesModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
