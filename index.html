@@ -3,11 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>كبده ومخ الشرقاوي - نظام الإدارة</title>
+    <title>كبده ومخ الشرقاوي - نظام الإدارة المتقدم</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            body * { visibility: hidden; }
+            #printSection, #printSection * { visibility: visible; }
+            #printSection { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans p-6">
+<body class="bg-gray-100 font-sans p-4">
 
     <!-- شاشة تسجيل الدخول -->
     <div id="loginScreen" class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg mt-20">
@@ -24,52 +31,98 @@
         <p id="loginError" class="text-red-500 text-center mt-3 text-sm hidden">اسم المستخدم أو كلمة المرور غير صحيحة!</p>
     </div>
 
-    <!-- لوحة التحكم والسيستم (مخفية لحين تسجيل الدخول) -->
-    <div id="appScreen" class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg hidden">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-red-700">مطعم كبده ومخ الشرقاوي 🥩🧠</h1>
-            <button onclick="handleLogout()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded font-bold hover:bg-gray-400">تسجيل خروج</button>
-        </div>
-        
-        <!-- قسم إضافة طلب جديد -->
-        <div class="bg-gray-50 p-4 rounded mb-6 border">
-            <h2 class="text-xl font-bold mb-3 text-gray-800">إضافة طلب جديد</h2>
-            <input type="text" id="customerName" placeholder="اسم العميل أو رقم الطاولة" class="w-full p-2 border rounded mb-3">
-            <textarea id="orderDetails" placeholder="تفاصيل الطلب (مثلاً: 2 سندوتش كبدة، 1 مخ)" class="w-full p-2 border rounded mb-3"></textarea>
-            <input type="number" id="totalPrice" placeholder="الإجمالي (جنيه)" class="w-full p-2 border rounded mb-3">
-            <button onclick="addOrder()" class="w-full bg-green-600 text-white p-2 rounded font-bold hover:bg-green-700">حفظ وإرسال الطلب</button>
-        </div>
-
-        <!-- قسم عرض الطلبات الحالية -->
-        <div>
-            <h2 class="text-xl font-bold mb-3 text-gray-800">الطلبات الحالية</h2>
-            <div id="ordersList" class="space-y-3">
-                <p class="text-gray-500">جاري تحميل الطلبات...</p>
+    <!-- لوحة التحكم والسيستم -->
+    <div id="appScreen" class="max-w-5xl mx-auto bg-white p-6 rounded-lg shadow-lg hidden">
+        <div class="flex justify-between items-center mb-6 border-b pb-4">
+            <h1 class="text-2xl font-bold text-red-700">مطعم كبده ومخ الشرقاوي 🥩🧠</h1>
+            <div class="flex items-center gap-4">
+                <button onclick="showSalesReport()" class="bg-blue-600 text-white px-4 py-2 rounded font-bold hover:bg-blue-700">📊 تقرير مبيعات اليوم</button>
+                <button onclick="handleLogout()" class="bg-gray-300 text-gray-800 px-4 py-2 rounded font-bold hover:bg-gray-400">خروج</button>
             </div>
         </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- قسم المنيو السريع -->
+            <div class="bg-gray-50 p-4 rounded border">
+                <h2 class="text-lg font-bold mb-3 text-gray-800">الأصناف السريعة (اضغط للإضافة)</h2>
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <button onclick="addToCart('سندوتش كبدة', 25)" class="bg-red-100 border border-red-300 p-3 rounded text-right hover:bg-red-200 font-bold text-red-800">
+                        سندوتش كبدة <span class="block text-sm text-gray-600">25 ج</span>
+                    </button>
+                    <button onclick="addToCart('سندوتش مخ', 30)" class="bg-red-100 border border-red-300 p-3 rounded text-right hover:bg-red-200 font-bold text-red-800">
+                        سندوتش مخ <span class="block text-sm text-gray-600">30 ج</span>
+                    </button>
+                    <button onclick="addToCart('سندوتش كبده ومخ', 35)" class="bg-red-100 border border-red-300 p-3 rounded text-right hover:bg-red-200 font-bold text-red-800">
+                        كبده ومخ <span class="block text-sm text-gray-600">35 ج</span>
+                    </button>
+                    <button onclick="addToCart('طاسة كبدة وسجق', 70)" class="bg-red-100 border border-red-300 p-3 rounded text-right hover:bg-red-200 font-bold text-red-800">
+                        طاسة كبدة وسجق <span class="block text-sm text-gray-600">70 ج</span>
+                    </button>
+                </div>
+
+                <h2 class="text-lg font-bold mb-2 text-gray-800">تفاصيل الطلب الحالي</h2>
+                <input type="text" id="customerName" placeholder="اسم العميل أو رقم الطاولة (مثلاً: طاولة 1)" class="w-full p-2 border rounded mb-3">
+                <div id="cartItems" class="bg-white p-3 border rounded mb-3 min-h-[80px] max-h-[150px] overflow-y-auto text-sm">
+                    <span class="text-gray-400">لم يتم اختيار أصناف بعد...</span>
+                </div>
+                <div class="flex justify-between items-center mb-3 font-bold text-lg">
+                    <span>الإجمالي:</span>
+                    <span id="cartTotal" class="text-red-600">0 جنيه</span>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="submitOrder()" class="flex-1 bg-green-600 text-white p-3 rounded font-bold hover:bg-green-700">حفظ وإرسال الطلب</button>
+                    <button onclick="clearCart()" class="bg-gray-400 text-white px-4 rounded font-bold hover:bg-gray-500">مسح</button>
+                </div>
+            </div>
+
+            <!-- قسم الطلبات الحالية -->
+            <div class="bg-gray-50 p-4 rounded border">
+                <h2 class="text-lg font-bold mb-3 text-gray-800">الطلبات الحالية</h2>
+                <div id="ordersList" class="space-y-3 max-h-[420px] overflow-y-auto">
+                    <p class="text-gray-500">جاري تحميل الطلبات...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تقرير المبيعات -->
+    <div id="salesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-lg max-w-md w-full shadow-lg">
+            <h2 class="text-xl font-bold mb-4 text-gray-800">📊 تقرير مبيعات اليوم</h2>
+            <p id="salesReportText" class="text-lg mb-6 text-gray-700">جاري الحساب...</p>
+            <button onclick="closeSalesReport()" class="w-full bg-blue-600 text-white p-2 rounded font-bold">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- قسم الطباعة المخفي -->
+    <div id="printSection" class="hidden p-6 bg-white text-black font-sans">
+        <div class="text-center border-b pb-4 mb-4">
+            <h2 class="text-xl font-bold">مطعم كبده ومخ الشرقاوي</h2>
+            <p id="printReceiptMeta" class="text-sm"></p>
+        </div>
+        <div id="printReceiptBody" class="mb-4 text-sm"></div>
+        <div class="text-center border-t pt-2 font-bold text-base" id="printReceiptTotal"></div>
     </div>
 
     <script>
         const SUPABASE_URL = 'https://lgwpqauwpzyvnyozkskn.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_lVZCBA_yIAQUM_H3_VCDkw_TpLOo8nK';
-        
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // بيانات الدخول الخاصة بالمطعم
         const ADMIN_USER = "elsharkawey";
         const ADMIN_PASS = "123456";
+
+        let currentCart = [];
 
         function handleLogin() {
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
-            const errorMsg = document.getElementById('loginError');
-
             if (user === ADMIN_USER && pass === ADMIN_PASS) {
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('appScreen').classList.remove('hidden');
                 fetchOrders();
             } else {
-                errorMsg.classList.remove('hidden');
+                document.getElementById('loginError').classList.remove('hidden');
             }
         }
 
@@ -80,11 +133,54 @@
             document.getElementById('password').value = '';
         }
 
+        function addToCart(name, price) {
+            const existing = currentCart.find(item => item.name === name);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                currentCart.push({ name, price, qty: 1 });
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const cartDiv = document.getElementById('cartItems');
+            const totalDiv = document.getElementById('cartTotal');
+            if (currentCart.length === 0) {
+                cartDiv.innerHTML = '<span class="text-gray-400">لم يتم اختيار أصناف بعد...</span>';
+                totalDiv.innerText = '0 جنيه';
+                return;
+            }
+            let total = 0;
+            cartDiv.innerHTML = currentCart.map((item, index) => {
+                let itemTotal = item.price * item.qty;
+                total += itemTotal;
+                return `<div class="flex justify-between items-center mb-1 border-b pb-1">
+                    <span>${item.name} (x${item.qty})</span>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold">${itemTotal} ج</span>
+                        <button onclick="removeFromCart(${index})" class="text-red-500 font-bold px-1">✕</button>
+                    </div>
+                </div>`;
+            }).join('');
+            totalDiv.innerText = total + ' جنيه';
+        }
+
+        function removeFromCart(index) {
+            currentCart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function clearCart() {
+            currentCart = [];
+            document.getElementById('customerName').value = '';
+            updateCartUI();
+        }
+
         async function fetchOrders() {
             const { data, error } = await _supabase.from('orders').select('*').order('id', { ascending: false });
             const listDiv = document.getElementById('ordersList');
             if (error) {
-                console.error(error);
                 listDiv.innerHTML = '<p class="text-red-500">خطأ في جلب الطلبات</p>';
                 return;
             }
@@ -93,46 +189,80 @@
                 return;
             }
             listDiv.innerHTML = data.map(o => {
-                let itemsText = typeof o.items === 'string' ? o.items : JSON.stringify(o.items);
+                let itemsText = '';
+                try {
+                    let parsed = typeof o.items === 'string' ? JSON.parse(o.items) : o.items;
+                    if (Array.isArray(parsed)) {
+                        itemsText = parsed.map(i => `${i.name} (x${i.qty})`).join('، ');
+                    } else {
+                        itemsText = o.items;
+                    }
+                } catch(e) {
+                    itemsText = o.items;
+                }
                 return `
-                <div class="p-3 border rounded bg-white shadow-sm flex justify-between items-center">
+                <div class="p-3 border rounded bg-white shadow-sm flex justify-between items-center text-sm">
                     <div>
-                        <strong>العميل/الطاولة:</strong> ${o.customer_name || 'بدون اسم'} <br>
+                        <strong>العميل:</strong> ${o.customer_name || 'بدون اسم'} <br>
                         <strong>الطلب:</strong> ${itemsText} <br>
-                        <strong>الإجمالي:</strong> ${o.total_price} جنيه
+                        <strong>الإجمالي:</strong> <span class="text-red-600 font-bold">${o.total_price} جنيه</span>
                     </div>
-                    <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded font-bold text-sm">${o.status || 'جديد'}</span>
+                    <div class="flex flex-col gap-1 items-end">
+                        <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded font-bold text-xs">${o.status || 'جديد'}</span>
+                        <button onclick='printReceipt(${JSON.stringify(o.customer_name || "بدون اسم")}, ${JSON.stringify(itemsText)}, ${o.total_price})' class="bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-xs font-bold">🖨️ طباعة</button>
+                    </div>
                 </div>
             `}).join('');
         }
 
-        async function addOrder() {
-            const customer_name = document.getElementById('customerName').value;
-            const itemsText = document.getElementById('orderDetails').value;
-            const total_price = parseFloat(document.getElementById('totalPrice').value);
-
-            if (!itemsText || !total_price) {
-                alert('من فضلك اكتب تفاصيل الطلب والإجمالي');
+        async function submitOrder() {
+            const customer_name = document.getElementById('customerName').value || 'عميل عام';
+            if (currentCart.length === 0) {
+                alert('اختر بعض الأصناف أولاً!');
                 return;
             }
-
-            const itemsData = JSON.stringify(itemsText);
+            let total_price = currentCart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            const itemsData = JSON.stringify(currentCart);
 
             const { error } = await _supabase.from('orders').insert([{ 
                 customer_name: customer_name, 
                 items: itemsData, 
-                total_price: total_price 
+                total_price: total_price,
+                status: 'جديد'
             }]);
 
             if (error) {
-                console.error(error);
-                alert('حدث خطأ أثناء حفظ الطلب: ' + error.message);
+                alert('خطأ أثناء الحفظ: ' + error.message);
             } else {
-                document.getElementById('customerName').value = '';
-                document.getElementById('orderDetails').value = '';
-                document.getElementById('totalPrice').value = '';
+                clearCart();
                 fetchOrders();
             }
+        }
+
+        function printReceipt(customer, items, total) {
+            document.getElementById('printReceiptMeta').innerText = `العميل: ${customer} - التاريخ: ${new Date().toLocaleDateString('ar-EG')}`;
+            document.getElementById('printReceiptBody').innerHTML = `<p><strong>الطلب:</strong> ${items}</p>`;
+            document.getElementById('printReceiptTotal').innerText = `الإجمالي الكلي: ${total} جنيه`;
+            window.print();
+        }
+
+        async function showSalesReport() {
+            const { data, error } = await _supabase.from('orders').select('*');
+            const modal = document.getElementById('salesModal');
+            const reportText = document.getElementById('salesReportText');
+            
+            if (error) {
+                reportText.innerText = 'حدث خطأ أثناء جلب التقارير';
+            } else {
+                let totalRevenue = data.reduce((sum, o) => sum + (parseFloat(o.total_price) || 0), 0);
+                let totalOrders = data.length;
+                reportText.innerHTML = `إجمالي عدد الطلبات المسجلة: <strong>${totalOrders}</strong><br>إجمالي الدخل المتوقع: <strong class="text-green-600">${totalRevenue} جنيه</strong>`;
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeSalesReport() {
+            document.getElementById('salesModal').classList.add('hidden');
         }
     </script>
 </body>
