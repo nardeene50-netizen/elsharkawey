@@ -442,4 +442,222 @@
             const itemsData = JSON.stringify(itemsToPrint);
 
             if (_supabase) {
-                const { error } = await _supabase
+                const { error } = await _supabase.from('orders').insert([{ 
+                    customer_name: customer_name, 
+                    items: itemsData, 
+                    total_price: total_price,
+                    status: 'جديد'
+                }]);
+
+                if (error) {
+                    alert('خطأ في حفظ الطلب: ' + error.message);
+                } else {
+                    triggerDoublePrint(customer_name, itemsToPrint, total_price);
+                    clearCart();
+                    fetchOrders();
+                }
+            } else {
+                triggerDoublePrint(customer_name, itemsToPrint, total_price);
+                clearCart();
+            }
+        }
+
+        // دالة طباعة ريسيت الزبون والمطبخ (الصنف - العدد - الإجمالي)
+        function triggerDoublePrint(customer, items, total) {
+            document.getElementById('printTreasuryArea').style.display = 'none';
+            document.getElementById('printArea').style.display = 'block';
+
+            const dateStr = new Date().toLocaleString('ar-EG');
+            document.getElementById('pCustomerMeta').innerHTML = `العميل: ${customer}<br>التاريخ: ${dateStr}`;
+            
+            document.getElementById('pCustomerItems').innerHTML = items.map(i => `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px; border-bottom: 1px dotted #ccc; padding-bottom: 2px;">
+                    <span style="flex: 2; text-align: right; font-weight: bold;">${i.name}</span>
+                    <span style="flex: 1; text-align: center;">${i.qty}</span>
+                    <span style="flex: 1; text-align: left; font-weight: bold;">${i.price * i.qty} ج</span>
+                </div>
+            `).join('');
+            
+            document.getElementById('pCustomerTotal').innerHTML = `
+                <div style="display: flex; justify-content: space-between;">
+                    <span>الإجمالي الكلي:</span>
+                    <span>${total} جنيه</span>
+                </div>
+            `;
+
+            document.getElementById('pKitchenMeta').innerHTML = `العميل: ${customer} | الوقت: ${new Date().toLocaleTimeString('ar-EG')}`;
+            document.getElementById('pKitchenItems').innerHTML = items.map(i => `<div style="margin-bottom: 2px;">▫️ ${i.name} (عدد: ${i.qty})</div>`).join('');
+
+            window.print();
+        }
+
+        async function addExpense() {
+            const title = document.getElementById('expenseTitle').value.trim();
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+
+            if (!title || !amount) {
+                alert('من فضلك ادخل بيان المصروف والمبلغ!');
+                return;
+            }
+
+            if (_supabase) {
+                const { error } = await _supabase.from('expenses').insert([{ title, amount }]);
+                if (error) {
+                    alert('خطأ في حفظ المصروف: ' + error.message);
+                } else {
+                    document.getElementById('expenseTitle').value = '';
+                    document.getElementById('expenseAmount').value = '';
+                    fetchExpenses();
+                }
+            }
+        }
+
+        async function fetchExpenses() {
+            if (!_supabase) return;
+            const { data, error } = await _supabase.from('expenses').select('*').order('id', { ascending: false });
+            const listDiv = document.getElementById('expensesList');
+            if (error) {
+                listDiv.innerHTML = '<p class="text-red-500 text-sm">خطأ في جلب المصروفات</p>';
+                return;
+            }
+            if (!data || data.length === 0) {
+                listDiv.innerHTML = '<p class="text-gray-500 text-sm">لا توجد مصروفات مسجلة</p>';
+                return;
+            }
+
+            listDiv.innerHTML = data.map(e => `
+                <div class="flex justify-between items-center border-b pb-1 text-sm">
+                    <div><strong>${e.title}</strong>: <span class="text-red-600 font-bold">${e.amount} جنيه</span></div>
+                    <button type="button" onclick="deleteExpense(${e.id})" class="text-red-500 font-bold px-2 py-0.5 rounded hover:bg-red-50 text-xs cursor-pointer">حذف</button>
+                </div>
+            `).join('');
+        }
+
+        async function deleteExpense(id) {
+            if (confirm('هل أنت متأكد من حذف هذا المصروف؟')) {
+                if (_supabase) {
+                    await _supabase.from('expenses').delete().eq('id', id);
+                    fetchExpenses();
+                }
+            }
+        }
+
+        async function fetchOrders() {
+            if (!_supabase) return;
+            const { data, error } = await _supabase.from('orders').select('*').order('id', { ascending: false }).limit(10);
+            const listDiv = document.getElementById('ordersList');
+            if (error || !data) return;
+            
+            listDiv.innerHTML = data.map(o => {
+                let itemsText = '';
+                try {
+                    let parsed = typeof o.items === 'string' ? JSON.parse(o.items) : o.items;
+                    if (Array.isArray(parsed)) { itemsText = parsed.map(i => `${i.name} (x${i.qty})`).join('، '); } 
+                    else { itemsText = o.items; }
+                } catch(e) { itemsText = o.items; }
+
+                return `
+                <div class="p-2 border rounded bg-white flex justify-between items-center text-xs">
+                    <div><strong>العميل:</strong> ${o.customer_name || 'عام'} | <strong>الطلب:</strong> ${itemsText}</div>
+                    <span class="text-red-600 font-bold">${o.total_price} جنيه</span>
+                </div>
+            `}).join('');
+        }
+
+        async function fetchTreasuryLogs() {
+            if (!_supabase) return;
+            const ordersRes = await _supabase.from('orders').select('*');
+            const expensesRes = await _supabase.from('expenses').select('*');
+
+            const orders = ordersRes.data || [];
+            const expenses = expensesRes.data || [];
+
+            let totalIn = 0;
+            let totalOut = 0;
+            let logs = [];
+
+            orders.forEach(o => {
+                let amt = parseFloat(o.total_price) || 0;
+                totalIn += amt;
+                let itemsText = '';
+                try {
+                    let parsed = typeof o.items === 'string' ? JSON.parse(o.items) : o.items;
+                    if (Array.isArray(parsed)) { itemsText = parsed.map(i => `${i.name} (${i.qty})`).join('، '); } 
+                    else { itemsText = o.items; }
+                } catch(e) { itemsText = o.items; }
+
+                logs.push({
+                    type: 'in',
+                    title: `أوردر مبيعات: ${o.customer_name || 'عميل عام'} (${itemsText})`,
+                    amount: amt,
+                    time: new Date(o.created_at || Date.now())
+                });
+            });
+
+            expenses.forEach(e => {
+                let amt = parseFloat(e.amount) || 0;
+                totalOut += amt;
+                logs.push({
+                    type: 'out',
+                    title: `مصروف: ${e.title}`,
+                    amount: amt,
+                    time: new Date(e.created_at || Date.now())
+                });
+            });
+
+            logs.sort((a, b) => b.time - a.time);
+
+            let netBalance = totalIn - totalOut;
+            lastTreasuryData = { totalIn, totalOut, balance: netBalance };
+
+            document.getElementById('treasuryIn').innerText = `${totalIn} جنيه`;
+            document.getElementById('treasuryOut').innerText = `${totalOut} جنيه`;
+            document.getElementById('treasuryBalance').innerText = `${netBalance} جنيه`;
+
+            const tbody = document.getElementById('treasuryLogs');
+            if (logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">لا توجد حركات مسجلة بالخزنة حتى الآن</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = logs.map(l => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-2.5 font-bold ${l.type === 'in' ? 'text-green-600' : 'text-red-600'}">
+                        ${l.type === 'in' ? '🟢 إيراد مبيعات' : '🔴 مصروفات'}
+                    </td>
+                    <td class="p-2.5">${l.title}</td>
+                    <td class="p-2.5 font-bold">${l.amount} جنيه</td>
+                    <td class="p-2.5 text-gray-500 text-xs">${l.time.toLocaleString('ar-EG')}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function processTreasuryTransfer() {
+            if (!confirm(`هل أنت متأكد من إجراء ترحيل وتصفية الخزنة الآن؟\n\nإجمالي الوارد: ${lastTreasuryData.totalIn} ج\nإجمالي المصروفات: ${lastTreasuryData.totalOut} ج\nالربح الفعلي/المستلم: ${lastTreasuryData.balance} ج`)) {
+                return;
+            }
+
+            document.getElementById('printArea').style.display = 'none';
+            document.getElementById('printTreasuryArea').style.display = 'block';
+
+            document.getElementById('tPrintTime').innerText = `التاريخ: ${new Date().toLocaleString('ar-EG')}`;
+            document.getElementById('tPrintIn').innerText = `${lastTreasuryData.totalIn} ج`;
+            document.getElementById('tPrintOut').innerText = `${lastTreasuryData.totalOut} ج`;
+            document.getElementById('tPrintBalance').innerText = `${lastTreasuryData.balance} ج`;
+
+            window.print();
+
+            if (_supabase) {
+                await _supabase.from('expenses').delete().neq('id', 0);
+                await _supabase.from('orders').delete().neq('id', 0);
+                
+                alert('تم تصفية الخزنة وترحيل الأرباح وتصفير الحسابات بنجاح! جاهز لليوم/الشيفت الجديد 👍');
+                
+                fetchTreasuryLogs();
+                fetchExpenses();
+                fetchOrders();
+            }
+        }
+    </script>
+</body>
+</html>
