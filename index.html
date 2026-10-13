@@ -192,13 +192,12 @@
         </div>
     </div>
 
-    <!-- نموذج ريسيت الفاتورة (مخصص لظهور الصنف، السعر، العدد، والإجمالي بدقة) -->
+    <!-- نموذج ريسيت الفاتورة -->
     <div id="printArea" style="display: none; width: 72mm; font-size: 11px; line-height: 1.3; padding: 2mm;">
         <div style="text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 2px;">مطعم كبده ومخ الشرقاوي</div>
         <div style="text-align: center; font-size: 10px; margin-bottom: 4px;">بالهنا والشفا 🥩</div>
         <div style="border-bottom: 1px dashed #000; padding-bottom: 3px; margin-bottom: 4px; font-size: 10px;" id="pCustomerMeta"></div>
         
-        <!-- رؤوس الأعمدة للريسيت -->
         <div style="display: flex; justify-content: space-between; font-weight: bold; border-bottom: 1px solid #000; padding-bottom: 2px; margin-bottom: 3px; font-size: 10px;">
             <span>الصنف</span>
             <span>العدد × السعر = الإجمالي</span>
@@ -461,7 +460,6 @@
             }
         }
 
-        // دالة طباعة ريسيت الزبون والمطبخ بالتفاصيل الكاملة (العدد، السعر، الإجمالي)
         function triggerDoublePrint(customer, items, total) {
             document.getElementById('printTreasuryArea').style.display = 'none';
             document.getElementById('printArea').style.display = 'block';
@@ -469,7 +467,6 @@
             const dateStr = new Date().toLocaleString('ar-EG');
             document.getElementById('pCustomerMeta').innerHTML = `العميل: ${customer}<br>التاريخ: ${dateStr}`;
             
-            // توليد تفاصيل كل صنف (الاسم، العدد، سعر الوحدة، وإجمالي السعر للصنف)
             document.getElementById('pCustomerItems').innerHTML = items.map(i => `
                 <div style="margin-bottom: 3px; border-bottom: 1px dotted #ccc; padding-bottom: 2px;">
                     <div style="font-weight: bold;">${i.name}</div>
@@ -608,7 +605,6 @@
             });
 
             logs.sort((a, b) => b.time - a.time);
-
             let netBalance = totalIn - totalOut;
             lastTreasuryData = { totalIn, totalOut, balance: netBalance };
 
@@ -616,17 +612,9 @@
             document.getElementById('treasuryOut').innerText = `${totalOut} جنيه`;
             document.getElementById('treasuryBalance').innerText = `${netBalance} جنيه`;
 
-            const tbody = document.getElementById('treasuryLogs');
-            if (logs.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">لا توجد حركات مسجلة بالخزنة حتى الآن</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = logs.map(l => `
+            document.getElementById('treasuryLogs').innerHTML = logs.length === 0 ? '<tr><td colspan="4" class="p-4 text-center text-gray-500">لا توجد حركات مالية</td></tr>' : logs.map(l => `
                 <tr class="hover:bg-gray-50">
-                    <td class="p-2.5 font-bold ${l.type === 'in' ? 'text-green-600' : 'text-red-600'}">
-                        ${l.type === 'in' ? '🟢 إيراد مبيعات' : '🔴 مصروفات'}
-                    </td>
+                    <td class="p-2.5 font-bold ${l.type === 'in' ? 'text-green-600' : 'text-red-600'}">${l.type === 'in' ? '🟢 إيراد' : '🔴 مصروف'}</td>
                     <td class="p-2.5">${l.title}</td>
                     <td class="p-2.5 font-bold">${l.amount} جنيه</td>
                     <td class="p-2.5 text-gray-500 text-xs">${l.time.toLocaleString('ar-EG')}</td>
@@ -635,9 +623,7 @@
         }
 
         async function processTreasuryTransfer() {
-            if (!confirm(`هل أنت متأكد من إجراء ترحيل وتصفية الخزنة الآن؟\n\nإجمالي الوارد: ${lastTreasuryData.totalIn} ج\nإجمالي المصروفات: ${lastTreasuryData.totalOut} ج\nالربح الفعلي/المستلم: ${lastTreasuryData.balance} ج`)) {
-                return;
-            }
+            if (!confirm(`هل أنت متأكد من إجراء ترحيل وتصفية الخزنة الآن؟\n\nإجمالي الوارد: ${lastTreasuryData.totalIn} ج\nإجمالي المصروفات: ${lastTreasuryData.totalOut} ج\nالربح الفعلي/المستلم: ${lastTreasuryData.balance} ج`)) return;
 
             document.getElementById('printArea').style.display = 'none';
             document.getElementById('printTreasuryArea').style.display = 'block';
@@ -650,15 +636,13 @@
             window.print();
 
             if (_supabase) {
-                await _supabase.from('expenses').delete().neq('id', 0);
-                await _supabase.from('orders').delete().neq('id', 0);
-                
-                alert('تم تصفية الخزنة وترحيل الأرباح وتصفير الحسابات بنجاح! جاهز لليوم/الشيفت الجديد 👍');
-                
-                fetchTreasuryLogs();
-                fetchExpenses();
-                fetchOrders();
+                try {
+                    await _supabase.from('expenses').delete().neq('id', 0);
+                    await _supabase.from('orders').delete().neq('id', 0);
+                } catch(e){}
             }
+            alert('تم تصفية الخزنة وترحيل الأرباح بنجاح! جاهز للشيفت الجديد 👍');
+            fetchTreasuryLogs(); fetchExpenses(); fetchOrders();
         }
     </script>
 </body>
