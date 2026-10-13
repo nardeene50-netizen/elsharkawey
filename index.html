@@ -9,9 +9,15 @@
     <style>
         /* إعدادات الطباعة الحرارية (مقاس 80 مم) */
         @media print {
-            body * { visibility: hidden !important; }
-            .no-print { display: none !important; }
-            #printArea, #printArea *, #printTreasuryArea, #printTreasuryArea * { visibility: visible !important; }
+            body * {
+                visibility: hidden !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            #printArea, #printArea *, #printTreasuryArea, #printTreasuryArea * {
+                visibility: visible !important;
+            }
             #printArea, #printTreasuryArea {
                 display: block !important;
                 position: absolute !important;
@@ -22,37 +28,61 @@
                 color: #000 !important;
                 background: #fff !important;
             }
-            @page { size: 80mm auto; margin: 0mm; }
+            @page {
+                size: 80mm auto;
+                margin: 0mm;
+            }
         }
-        .tab-btn.active { background-color: #dc2626; color: white; border-color: #dc2626; }
-        .main-tab.active { background-color: #1f2937; color: white; }
+        .tab-btn.active {
+            background-color: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+        .main-tab.active {
+            background-color: #1f2937;
+            color: white;
+        }
     </style>
 </head>
 <body class="bg-gray-100 font-sans p-3">
 
-    <!-- نافذة كلمة مرور الإدارة العامة -->
+    <!-- شاشة تسجيل الدخول العامة -->
+    <div id="loginScreen" class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-lg mt-20 no-print">
+        <h1 class="text-2xl font-bold text-center text-red-700 mb-6">تسجيل دخول كاشير الشرقاوي 🥩</h1>
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2 font-bold">اسم المستخدم</label>
+            <input type="text" id="username" value="elsharkawey" class="w-full p-3 border rounded">
+        </div>
+        <div class="mb-6">
+            <label class="block text-gray-700 mb-2 font-bold">كلمة المرور</label>
+            <input type="password" id="password" value="123456" class="w-full p-3 border rounded">
+        </div>
+        <button type="button" onclick="doLogin()" class="w-full bg-red-600 text-white p-3 rounded font-bold hover:bg-red-700 cursor-pointer">دخول للسيستم</button>
+    </div>
+
+    <!-- نافذة كلمة مرور الإدارة (خاصة بحركة الخزنة فقط) -->
     <div id="adminAuthModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50 no-print">
         <div class="bg-white p-6 rounded-lg max-w-sm w-full shadow-lg">
-            <h2 class="text-xl font-bold mb-3 text-gray-800 text-center" id="adminModalTitle">🔐 كلمة مرور الإدارة</h2>
-            <p class="text-sm text-gray-600 mb-4 text-center">هذا الإجراء محمي بكلمة مرور خاصة بالإدارة فقط</p>
+            <h2 class="text-xl font-bold mb-3 text-gray-800 text-center">🔐 إدارة حركة الخزنة</h2>
+            <p class="text-sm text-gray-600 mb-4 text-center">هذا القسم محمي بكلمة مرور خاصة بالإدارة فقط</p>
             <input type="password" id="adminPasswordInput" placeholder="اكتب كلمة مرور الإدارة" class="w-full p-3 border rounded mb-3 text-center text-lg">
-            <button type="button" onclick="verifyAdminPassword()" class="w-full bg-red-700 text-white p-2.5 rounded font-bold hover:bg-red-800 mb-2 cursor-pointer">تأكيد الدخول</button>
+            <button type="button" onclick="verifyAdminPassword()" class="w-full bg-red-700 text-white p-2.5 rounded font-bold hover:bg-red-800 mb-2 cursor-pointer">دخول للخزنة</button>
             <button type="button" onclick="closeAdminAuth()" class="w-full bg-gray-300 text-gray-700 p-2 rounded font-bold hover:bg-gray-400 text-sm cursor-pointer">إلغاء</button>
             <p id="adminAuthError" class="text-red-500 text-center mt-2 text-xs hidden">كلمة مرور الإدارة غير صحيحة!</p>
         </div>
     </div>
 
-    <!-- شاشة النظام الرئيسية (مفتوحة تلقائياً) -->
-    <div id="appScreen" class="max-w-7xl mx-auto bg-white p-4 rounded-lg shadow-lg no-print">
+    <!-- شاشة نظام الكاشير والمصروفات وخزنة المطعم -->
+    <div id="appScreen" class="max-w-7xl mx-auto bg-white p-4 rounded-lg shadow-lg hidden no-print">
         <div class="flex justify-between items-center mb-4 border-b pb-3 flex-wrap gap-2">
             <h1 class="text-2xl font-bold text-red-700">مطعم كبده ومخ الشرقاوي 🥩🧠</h1>
             <div class="flex items-center gap-2 flex-wrap">
                 <div class="flex bg-gray-200 p-1 rounded font-bold text-sm">
                     <button type="button" onclick="switchMainView('pos')" id="mainTabPos" class="main-tab active px-3 py-1.5 rounded transition cursor-pointer">🛒 الكاشير والطلبات</button>
-                    <button type="button" onclick="switchMainView('inventory')" id="mainTabInventory" class="main-tab px-3 py-1.5 rounded transition cursor-pointer">📦 المخزن والبضاعة</button>
                     <button type="button" onclick="switchMainView('expenses')" id="mainTabExpenses" class="main-tab px-3 py-1.5 rounded transition cursor-pointer">💸 المصروفات اليومية</button>
                     <button type="button" onclick="requestTreasuryAccess()" id="mainTabTreasury" class="main-tab px-3 py-1.5 rounded transition cursor-pointer">🏦 حركة الخزنة 🔒</button>
                 </div>
+                <button type="button" onclick="handleLogout()" class="bg-gray-300 text-gray-800 px-3 py-1.5 rounded font-bold hover:bg-gray-400 text-sm cursor-pointer">خروج</button>
             </div>
         </div>
         
@@ -68,6 +98,7 @@
                     <button type="button" onclick="switchTab('fateer_salty')" id="tab-fateer_salty" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap cursor-pointer">🫓 فطير حادق</button>
                     <button type="button" onclick="switchTab('fateer_sweet')" id="tab-fateer_sweet" class="tab-btn px-3 py-2 rounded bg-white border whitespace-nowrap cursor-pointer">🍯 فطير حلو</button>
                 </div>
+
                 <div id="itemsGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[420px] overflow-y-auto p-1"></div>
             </div>
 
@@ -75,76 +106,22 @@
                 <div>
                     <h2 class="text-lg font-bold mb-2 text-gray-800 border-b pb-1">تفاصيل الأوردر الحالي</h2>
                     <input type="text" id="customerName" placeholder="اسم العميل / رقم الطاولة" class="w-full p-2 border rounded mb-2 text-sm">
+                    
                     <div id="cartItems" class="bg-white p-2 border rounded mb-2 min-h-[150px] max-h-[200px] overflow-y-auto text-sm">
                         <span class="text-gray-400">اختر الأصناف من القائمة...</span>
                     </div>
                 </div>
+
                 <div>
                     <div class="flex justify-between items-center mb-3 bg-red-50 p-2 rounded border border-red-200 font-bold text-lg">
                         <span>إجمالي الحساب:</span>
                         <span id="cartTotal" class="text-red-700">0 جنيه</span>
                     </div>
+
                     <div class="grid grid-cols-2 gap-2">
                         <button type="button" onclick="submitOrder()" class="bg-green-600 text-white p-2.5 rounded font-bold hover:bg-green-700 text-sm cursor-pointer">حفظ وطباعة 🖨️</button>
                         <button type="button" onclick="clearCart()" class="bg-gray-400 text-white p-2.5 rounded font-bold hover:bg-gray-500 text-sm cursor-pointer">إلغاء</button>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- قسم المخزن والبضاعة -->
-        <div id="inventorySection" class="hidden bg-gray-50 p-4 rounded border">
-            <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-                <h2 class="text-xl font-bold text-gray-800">📦 إدارة المخزن والبضاعة المتاحة</h2>
-                <button type="button" onclick="requestAddStockAccess()" class="bg-blue-700 text-white px-4 py-2 rounded font-bold hover:bg-blue-800 text-sm flex items-center gap-1 cursor-pointer">
-                    🔒 إضافة مخزون / صنف جديد (بكلمة سر الإدارة)
-                </button>
-            </div>
-
-            <div id="addStockForm" class="hidden bg-white p-4 rounded border border-blue-200 mb-6 shadow-sm">
-                <h3 class="font-bold text-blue-800 mb-3 text-md">➕ إضافة مخزون جديد للمخزن</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-                    <input type="text" id="itemNameInput" placeholder="اسم الصنف (مثل: كبدة، مخ، دقيق)" class="p-2 border rounded text-sm">
-                    <input type="number" id="itemQtyInput" placeholder="الكمية المضافة" class="p-2 border rounded text-sm">
-                    <input type="text" id="itemUnitInput" placeholder="الوحدة (كيلو، كرتونة، عدد)" class="p-2 border rounded text-sm">
-                </div>
-                <div class="flex gap-2">
-                    <button type="button" onclick="saveNewStock()" class="bg-blue-600 text-white px-4 py-2 rounded font-bold hover:bg-blue-700 text-sm cursor-pointer">حفظ في المخزن</button>
-                    <button type="button" onclick="document.getElementById('addStockForm').classList.add('hidden')" class="bg-gray-300 text-gray-700 px-3 py-2 rounded font-bold text-sm cursor-pointer">إلغاء</button>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <div class="lg:col-span-8 bg-white border rounded p-3">
-                    <h3 class="font-bold text-gray-700 mb-3 border-b pb-2">قائمة البضاعة بالمخزن:</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-right text-sm">
-                            <thead>
-                                <tr class="bg-gray-100 border-b">
-                                    <th class="p-2">الصنف</th>
-                                    <th class="p-2">الكمية المتاحة</th>
-                                    <th class="p-2">الوحدة</th>
-                                    <th class="p-2">الحالة</th>
-                                </tr>
-                            </thead>
-                            <tbody id="inventoryTable" class="divide-y">
-                                <tr><td colspan="4" class="p-4 text-center text-gray-500">جاري تحميل المخزن...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-4 bg-white border rounded p-3">
-                    <h3 class="font-bold text-red-700 mb-3 border-b pb-2">🔻 تسجيل استهلاك الكاشير (سحب من المخزن)</h3>
-                    <div class="mb-3">
-                        <label class="block text-xs font-bold text-gray-600 mb-1">اختر الصنف المستهلك:</label>
-                        <select id="consumeItemSelect" class="w-full p-2 border rounded text-sm bg-gray-50"></select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="block text-xs font-bold text-gray-600 mb-1">الكمية المستهلكة:</label>
-                        <input type="number" id="consumeQtyInput" placeholder="العدد / الكمية" class="w-full p-2 border rounded text-sm">
-                    </div>
-                    <button type="button" onclick="submitStockConsumption()" class="w-full bg-red-600 text-white p-2.5 rounded font-bold hover:bg-red-700 text-sm cursor-pointer">تأكيد خصم الاستهلاك</button>
                 </div>
             </div>
         </div>
@@ -157,6 +134,7 @@
                 <input type="number" id="expenseAmount" placeholder="المبلغ (بالجنيه)" class="p-2.5 border rounded text-sm">
                 <button type="button" onclick="addExpense()" class="bg-red-600 text-white p-2.5 rounded font-bold hover:bg-red-700 text-sm cursor-pointer">➕ إضافة المصروف</button>
             </div>
+
             <h3 class="font-bold text-gray-700 mb-2">سجل مصروفات اليوم:</h3>
             <div id="expensesList" class="space-y-2 max-h-[300px] overflow-y-auto bg-white p-3 border rounded">
                 <p class="text-gray-500 text-sm">جاري تحميل المصروفات...</p>
@@ -166,7 +144,7 @@
         <!-- قسم حركة الخزنة -->
         <div id="treasurySection" class="hidden bg-gray-50 p-4 rounded border">
             <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-                <h2 class="text-xl font-bold text-gray-800">🏦 كشف حركة الخزنة والمخزن (خاص بالإدارة)</h2>
+                <h2 class="text-xl font-bold text-gray-800">🏦 كشف حركة الخزنة الكاملة (خاص بالإدارة)</h2>
                 <button type="button" onclick="processTreasuryTransfer()" class="bg-purple-700 text-white px-4 py-2 rounded font-bold hover:bg-purple-800 text-sm flex items-center gap-1 cursor-pointer">
                     🔄 إجراء ترحيل وتصفية الخزنة
                 </button>
@@ -184,24 +162,6 @@
                 <div class="bg-blue-50 border border-blue-200 p-4 rounded text-center">
                     <span class="block text-gray-600 text-sm font-bold">الربح الفعلي / الرصيد المرحّل 💰</span>
                     <span id="treasuryBalance" class="text-2xl font-bold text-blue-600">0 جنيه</span>
-                </div>
-            </div>
-
-            <div class="mb-6 bg-white border rounded p-3">
-                <h3 class="font-bold text-purple-800 mb-2 border-b pb-2">📋 كشف الاستهلاك والسحوبات من المخزن (الصنف والعدد):</h3>
-                <div class="max-h-[200px] overflow-y-auto">
-                    <table class="w-full text-right text-sm">
-                        <thead>
-                            <tr class="bg-purple-50 text-purple-900 border-b">
-                                <th class="p-2">الصنف المستهلك</th>
-                                <th class="p-2">الكمية المسحوبة</th>
-                                <th class="p-2">التاريخ والوقت</th>
-                            </tr>
-                        </thead>
-                        <tbody id="treasuryStockLogs" class="divide-y">
-                            <tr><td colspan="3" class="p-3 text-center text-gray-500">لا توجد مسحوبات من المخزن في هذا الشيفت</td></tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
 
@@ -234,16 +194,21 @@
 
     <!-- نموذج ريسيت الفاتورة -->
     <div id="printArea" style="display: none; width: 72mm; font-size: 11px; line-height: 1.3; padding: 2mm;">
-        <div style="text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 2px;">مطعم كبده ومخ الشرقاوي يرحب بكم 🥩</div>
+        <div style="text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 2px;">مطعم كبده ومخ الشرقاوي</div>
+        <div style="text-align: center; font-size: 10px; margin-bottom: 4px;">بالهنا والشفا 🥩</div>
         <div style="border-bottom: 1px dashed #000; padding-bottom: 3px; margin-bottom: 4px; font-size: 10px;" id="pCustomerMeta"></div>
-        <div style="display: flex; justify-content: space-between; font-weight: bold; border-bottom: 1px solid #000; padding-bottom: 2px; margin-bottom: 4px; font-size: 11px;">
-            <span style="flex: 2; text-align: right;">الصنف</span>
-            <span style="flex: 1; text-align: center;">العدد</span>
-            <span style="flex: 1; text-align: left;">الإجمالي</span>
+        
+        <div style="display: flex; justify-content: space-between; font-weight: bold; border-bottom: 1px solid #000; padding-bottom: 2px; margin-bottom: 3px; font-size: 10px;">
+            <span>الصنف</span>
+            <span>العدد × السعر = الإجمالي</span>
         </div>
+
         <div id="pCustomerItems" style="font-size: 11px; margin-bottom: 4px;"></div>
+        
         <div style="border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 4px 0; margin-top: 4px; font-weight: bold; font-size: 13px;" id="pCustomerTotal"></div>
+        
         <div style="text-align: center; font-size: 9px; margin-top: 6px;">شكراً لزيارتكم الشرقاوي</div>
+        
         <div style="border-top: 2px dashed #000; margin-top: 8px; padding-top: 6px;">
             <div style="text-align: center; font-weight: bold; font-size: 13px; margin-bottom: 3px;">[ بون المطبخ 👨‍🍳 ]</div>
             <div style="font-size: 10px; margin-bottom: 3px;" id="pKitchenMeta"></div>
@@ -275,42 +240,410 @@
     </div>
 
     <script>
-        const ADMIN_SECRET_PASS = "7777";
-        let authMode = 'treasury';
-        let lastTreasuryData = { totalIn: 0, totalOut: 0, balance: 0 };
+        const SUPABASE_URL = 'https://lgwpqauwpzyvnyozkskn.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_lVZCBA_yIAQUM_H3_VCDkw_TpLOo8nK';
+        
+        let _supabase;
+        try {
+            _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch(e) {
+            console.error("Supabase Error:", e);
+        }
 
-        let localInventory = [
-            { id: 1, name: 'كبدة بلدي', qty: 25, unit: 'كيلو' },
-            { id: 2, name: 'مخ بلدي', qty: 15, unit: 'عدد' },
-            { id: 3, name: 'لحمة كفتة', qty: 20, unit: 'كيلو' },
-            { id: 4, name: 'عيش بلدي', qty: 100, unit: 'رغيف' }
-        ];
-        let localStockLogs = [];
-        let localExpenses = [];
-        let localOrders = [];
+        const ADMIN_SECRET_PASS = "7777";
+        let lastTreasuryData = { totalIn: 0, totalOut: 0, balance: 0 };
 
         const MENU_DATA = {
             sandwiches: [
-                { name: 'حواوشي عادي', price: 25 }, { name: 'حواوشي مخصوص', price: 35 }, { name: 'حواوشي ضاني', price: 40 },
-                { name: 'حواوشي موزاريلا', price: 50 }, { name: 'رغيف كفته', price: 30 }, { name: 'رغيف كفته ضاني', price: 35 },
-                { name: 'رغيف طرب', price: 45 }, { name: 'رغيف كبده بلدي', price: 30 }, { name: 'رغيف مخ', price: 45 },
-                { name: 'رغيف كبده ومخ', price: 45 }, { name: 'رغيف جمبري وسط', price: 40 }, { name: 'رغيف جمبري كبير', price: 50 },
-                { name: 'رغيف فراخ بانيه', price: 35 }, { name: 'رغيف شيش طاووك', price: 45 }, { name: 'رغيف سمك فيليه', price: 35 },
-                { name: 'برجر ساده', price: 25 }, { name: 'برجر بيض', price: 32 }
+                { name: 'حواوشي عادي', price: 25 },
+                { name: 'حواوشي مخصوص', price: 35 },
+                { name: 'حواوشي ضاني', price: 40 },
+                { name: 'حواوشي موزاريلا', price: 50 },
+                { name: 'رغيف كفته', price: 30 },
+                { name: 'رغيف كفته ضاني', price: 35 },
+                { name: 'رغيف طرب', price: 45 },
+                { name: 'رغيف كبده بلدي', price: 30 },
+                { name: 'رغيف مخ', price: 45 },
+                { name: 'رغيف كبده ومخ', price: 45 },
+                { name: 'رغيف جمبري وسط', price: 40 },
+                { name: 'رغيف جمبري كبير', price: 50 },
+                { name: 'رغيف فراخ بانيه', price: 35 },
+                { name: 'رغيف شيش طاووك', price: 45 },
+                { name: 'رغيف سمك فيليه', price: 35 },
+                { name: 'برجر ساده', price: 25 },
+                { name: 'برجر بيض', price: 32 }
             ],
             crepes: [
-                { name: 'كريب شاورما فراخ', price: 60 }, { name: 'كريب شاورما لحمه', price: 65 }, { name: 'كريب جمبري', price: 75 },
-                { name: 'كريب تونه', price: 55 }, { name: 'كريب استربس', price: 60 }, { name: 'كريب سجق', price: 55 }
+                { name: 'كريب شاورما فراخ', price: 60 },
+                { name: 'كريب شاورما لحمه', price: 65 },
+                { name: 'كريب جمبري', price: 75 },
+                { name: 'كريب تونه', price: 55 },
+                { name: 'كريب استربس', price: 60 },
+                { name: 'كريب سجق', price: 55 }
             ],
             meals: [
-                { name: 'وجبة كبدة ومخ', price: 90 }, { name: 'وجبة جمبري مقلي', price: 110 },
-                { name: 'وجبة شاورما مشكل', price: 95 }, { name: 'وجبة استربس عائلي', price: 120 }
+                { name: 'وجبة كبدة ومخ', price: 90 },
+                { name: 'وجبة جمبري مقلي', price: 110 },
+                { name: 'وجبة شاورما مشكل', price: 95 },
+                { name: 'وجبة استربس عائلي', price: 120 }
             ],
             pizza_italy: [
-                { name: 'بيتزا مارجريتا إيطالي', price: 65 }, { name: 'بيتزا كبدة ومخ إيطالي', price: 85 },
-                { name: 'بيتزا شاورما فراخ', price: 80 }, { name: 'بيتزا جمبري إيطالي', price: 100 }
+                { name: 'بيتزا مارجريتا إيطالي', price: 65 },
+                { name: 'بيتزا كبدة ومخ إيطالي', price: 85 },
+                { name: 'بيتزا شاورما فراخ', price: 80 },
+                { name: 'بيتزا جمبري إيطالي', price: 100 }
             ],
             pizza_oriental: [
-                { name: 'بيتزا شرقي كبدة وسجق', price: 85 }, { name: 'بيتزا شرقي مشكل لحوم', price: 95 }, { name: 'بيتزا شرقي مشكل جبن', price: 75 }
+                { name: 'بيتزا شرقي كبدة وسجق', price: 85 },
+                { name: 'بيتزا شرقي مشكل لحوم', price: 95 },
+                { name: 'بيتزا شرقي مشكل جبن', price: 75 }
             ],
-            fateer_
+            fateer_salty: [
+                { name: 'فطير حادق كبدة ومخ', price: 90 },
+                { name: 'فطير حادق سجق وبسطرمة', price: 85 },
+                { name: 'فطير حادق مشكل جبن', price: 70 }
+            ],
+            fateer_sweet: [
+                { name: 'فطير بياض ونوتيلا', price: 60 },
+                { name: 'فطير كاسترد وعسل', price: 45 },
+                { name: 'فطير مكسرات وسكر', price: 50 }
+            ]
+        };
+
+        let currentCart = [];
+
+        function doLogin() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('appScreen').classList.remove('hidden');
+            switchTab('sandwiches');
+            fetchOrders();
+            fetchExpenses();
+        }
+
+        function handleLogout() {
+            document.getElementById('appScreen').classList.add('hidden');
+            document.getElementById('loginScreen').style.display = 'block';
+        }
+
+        function requestTreasuryAccess() {
+            document.getElementById('adminPasswordInput').value = '';
+            document.getElementById('adminAuthError').classList.add('hidden');
+            document.getElementById('adminAuthModal').classList.remove('hidden');
+        }
+
+        function closeAdminAuth() {
+            document.getElementById('adminAuthModal').classList.add('hidden');
+        }
+
+        function verifyAdminPassword() {
+            const enteredPass = document.getElementById('adminPasswordInput').value.trim();
+            const errorText = document.getElementById('adminAuthError');
+
+            if (enteredPass === ADMIN_SECRET_PASS) {
+                closeAdminAuth();
+                switchMainView('treasury');
+            } else {
+                errorText.classList.remove('hidden');
+            }
+        }
+
+        function switchMainView(view) {
+            document.getElementById('posSection').classList.add('hidden');
+            document.getElementById('expensesSection').classList.add('hidden');
+            document.getElementById('treasurySection').classList.add('hidden');
+            document.getElementById('recentOrdersBlock').classList.add('hidden');
+
+            document.getElementById('mainTabPos').classList.remove('active');
+            document.getElementById('mainTabExpenses').classList.remove('active');
+            document.getElementById('mainTabTreasury').classList.remove('active');
+
+            if (view === 'pos') {
+                document.getElementById('posSection').classList.remove('hidden');
+                document.getElementById('recentOrdersBlock').classList.remove('hidden');
+                document.getElementById('mainTabPos').classList.add('active');
+            } else if (view === 'expenses') {
+                document.getElementById('expensesSection').classList.remove('hidden');
+                document.getElementById('recentOrdersBlock').classList.remove('hidden');
+                document.getElementById('mainTabExpenses').classList.add('active');
+                fetchExpenses();
+            } else if (view === 'treasury') {
+                document.getElementById('treasurySection').classList.remove('hidden');
+                document.getElementById('mainTabTreasury').classList.add('active');
+                fetchTreasuryLogs();
+            }
+        }
+
+        function switchTab(tabKey) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById(`tab-${tabKey}`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            const items = MENU_DATA[tabKey] || [];
+            document.getElementById('itemsGrid').innerHTML = items.map(item => `
+                <button type="button" onclick="addToCart('${item.name}', ${item.price})" class="bg-white border border-gray-200 p-2.5 rounded shadow-sm hover:border-red-500 text-right flex flex-col justify-between cursor-pointer">
+                    <span class="font-bold text-gray-800 text-sm mb-1">${item.name}</span>
+                    <span class="text-red-600 font-bold text-xs bg-red-50 w-fit px-1.5 py-0.5 rounded">${item.price} جنيه</span>
+                </button>
+            `).join('');
+        }
+
+        function addToCart(name, price) {
+            const existing = currentCart.find(i => i.name === name);
+            if (existing) { existing.qty += 1; } 
+            else { currentCart.push({ name, price, qty: 1 }); }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const cartDiv = document.getElementById('cartItems');
+            const totalDiv = document.getElementById('cartTotal');
+            if (currentCart.length === 0) {
+                cartDiv.innerHTML = '<span class="text-gray-400">اختر الأصناف من القائمة...</span>';
+                totalDiv.innerText = '0 جنيه';
+                return;
+            }
+            let total = 0;
+            cartDiv.innerHTML = currentCart.map((item, index) => {
+                let itemTotal = item.price * item.qty;
+                total += itemTotal;
+                return `<div class="flex justify-between items-center mb-1 border-b pb-1">
+                    <span>${item.name} (x${item.qty})</span>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold">${itemTotal} ج</span>
+                        <button type="button" onclick="removeFromCart(${index})" class="text-red-500 font-bold px-1 cursor-pointer">✕</button>
+                    </div>
+                </div>`;
+            }).join('');
+            totalDiv.innerText = total + ' جنيه';
+        }
+
+        function removeFromCart(index) {
+            currentCart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function clearCart() {
+            currentCart = [];
+            document.getElementById('customerName').value = '';
+            updateCartUI();
+        }
+
+        async function submitOrder() {
+            const customer_name = document.getElementById('customerName').value || 'عميل عام';
+            if (currentCart.length === 0) {
+                alert('من فضلك أضف أصناف للأوردر أولاً!');
+                return;
+            }
+            let total_price = currentCart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            
+            const itemsToPrint = [...currentCart];
+            const itemsData = JSON.stringify(itemsToPrint);
+
+            if (_supabase) {
+                const { error } = await _supabase.from('orders').insert([{ 
+                    customer_name: customer_name, 
+                    items: itemsData, 
+                    total_price: total_price,
+                    status: 'جديد'
+                }]);
+
+                if (error) {
+                    alert('خطأ في حفظ الطلب: ' + error.message);
+                } else {
+                    triggerDoublePrint(customer_name, itemsToPrint, total_price);
+                    clearCart();
+                    fetchOrders();
+                }
+            } else {
+                triggerDoublePrint(customer_name, itemsToPrint, total_price);
+                clearCart();
+            }
+        }
+
+        function triggerDoublePrint(customer, items, total) {
+            document.getElementById('printTreasuryArea').style.display = 'none';
+            document.getElementById('printArea').style.display = 'block';
+
+            const dateStr = new Date().toLocaleString('ar-EG');
+            document.getElementById('pCustomerMeta').innerHTML = `العميل: ${customer}<br>التاريخ: ${dateStr}`;
+            
+            document.getElementById('pCustomerItems').innerHTML = items.map(i => `
+                <div style="margin-bottom: 3px; border-bottom: 1px dotted #ccc; padding-bottom: 2px;">
+                    <div style="font-weight: bold;">${i.name}</div>
+                    <div style="display: flex; justify-content: space-between; font-size: 10px;">
+                        <span>العدد: ${i.qty} × ${i.price} ج</span>
+                        <span style="font-weight: bold; font-size: 11px;">${i.price * i.qty} ج</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('pCustomerTotal').innerHTML = `
+                <div style="display: flex; justify-content: space-between;">
+                    <span>الإجمالي الكلي:</span>
+                    <span>${total} جنيه</span>
+                </div>
+            `;
+
+            document.getElementById('pKitchenMeta').innerHTML = `العميل: ${customer} | الوقت: ${new Date().toLocaleTimeString('ar-EG')}`;
+            document.getElementById('pKitchenItems').innerHTML = items.map(i => `<div style="margin-bottom: 2px;">▫️ ${i.name} (عدد: ${i.qty})</div>`).join('');
+
+            window.print();
+        }
+
+        async function addExpense() {
+            const title = document.getElementById('expenseTitle').value.trim();
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+
+            if (!title || !amount) {
+                alert('من فضلك ادخل بيان المصروف والمبلغ!');
+                return;
+            }
+
+            if (_supabase) {
+                const { error } = await _supabase.from('expenses').insert([{ title, amount }]);
+                if (error) {
+                    alert('خطأ في حفظ المصروف: ' + error.message);
+                } else {
+                    document.getElementById('expenseTitle').value = '';
+                    document.getElementById('expenseAmount').value = '';
+                    fetchExpenses();
+                }
+            }
+        }
+
+        async function fetchExpenses() {
+            if (!_supabase) return;
+            const { data, error } = await _supabase.from('expenses').select('*').order('id', { ascending: false });
+            const listDiv = document.getElementById('expensesList');
+            if (error) {
+                listDiv.innerHTML = '<p class="text-red-500 text-sm">خطأ في جلب المصروفات</p>';
+                return;
+            }
+            if (!data || data.length === 0) {
+                listDiv.innerHTML = '<p class="text-gray-500 text-sm">لا توجد مصروفات مسجلة</p>';
+                return;
+            }
+
+            listDiv.innerHTML = data.map(e => `
+                <div class="flex justify-between items-center border-b pb-1 text-sm">
+                    <div><strong>${e.title}</strong>: <span class="text-red-600 font-bold">${e.amount} جنيه</span></div>
+                    <button type="button" onclick="deleteExpense(${e.id})" class="text-red-500 font-bold px-2 py-0.5 rounded hover:bg-red-50 text-xs cursor-pointer">حذف</button>
+                </div>
+            `).join('');
+        }
+
+        async function deleteExpense(id) {
+            if (confirm('هل أنت متأكد من حذف هذا المصروف؟')) {
+                if (_supabase) {
+                    await _supabase.from('expenses').delete().eq('id', id);
+                    fetchExpenses();
+                }
+            }
+        }
+
+        async function fetchOrders() {
+            if (!_supabase) return;
+            const { data, error } = await _supabase.from('orders').select('*').order('id', { ascending: false }).limit(10);
+            const listDiv = document.getElementById('ordersList');
+            if (error || !data) return;
+            
+            listDiv.innerHTML = data.map(o => {
+                let itemsText = '';
+                try {
+                    let parsed = typeof o.items === 'string' ? JSON.parse(o.items) : o.items;
+                    if (Array.isArray(parsed)) { itemsText = parsed.map(i => `${i.name} (x${i.qty})`).join('، '); } 
+                    else { itemsText = o.items; }
+                } catch(e) { itemsText = o.items; }
+
+                return `
+                <div class="p-2 border rounded bg-white flex justify-between items-center text-xs">
+                    <div><strong>العميل:</strong> ${o.customer_name || 'عام'} | <strong>الطلب:</strong> ${itemsText}</div>
+                    <span class="text-red-600 font-bold">${o.total_price} جنيه</span>
+                </div>
+            `}).join('');
+        }
+
+        async function fetchTreasuryLogs() {
+            if (!_supabase) return;
+            const ordersRes = await _supabase.from('orders').select('*');
+            const expensesRes = await _supabase.from('expenses').select('*');
+
+            const orders = ordersRes.data || [];
+            const expenses = expensesRes.data || [];
+
+            let totalIn = 0;
+            let totalOut = 0;
+            let logs = [];
+
+            orders.forEach(o => {
+                let amt = parseFloat(o.total_price) || 0;
+                totalIn += amt;
+                let itemsText = '';
+                try {
+                    let parsed = typeof o.items === 'string' ? JSON.parse(o.items) : o.items;
+                    if (Array.isArray(parsed)) { itemsText = parsed.map(i => `${i.name} (${i.qty})`).join('، '); } 
+                    else { itemsText = o.items; }
+                } catch(e) { itemsText = o.items; }
+
+                logs.push({
+                    type: 'in',
+                    title: `أوردر مبيعات: ${o.customer_name || 'عميل عام'} (${itemsText})`,
+                    amount: amt,
+                    time: new Date(o.created_at || Date.now())
+                });
+            });
+
+            expenses.forEach(e => {
+                let amt = parseFloat(e.amount) || 0;
+                totalOut += amt;
+                logs.push({
+                    type: 'out',
+                    title: `مصروف: ${e.title}`,
+                    amount: amt,
+                    time: new Date(e.created_at || Date.now())
+                });
+            });
+
+            logs.sort((a, b) => b.time - a.time);
+            let netBalance = totalIn - totalOut;
+            lastTreasuryData = { totalIn, totalOut, balance: netBalance };
+
+            document.getElementById('treasuryIn').innerText = `${totalIn} جنيه`;
+            document.getElementById('treasuryOut').innerText = `${totalOut} جنيه`;
+            document.getElementById('treasuryBalance').innerText = `${netBalance} جنيه`;
+
+            document.getElementById('treasuryLogs').innerHTML = logs.length === 0 ? '<tr><td colspan="4" class="p-4 text-center text-gray-500">لا توجد حركات مالية</td></tr>' : logs.map(l => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-2.5 font-bold ${l.type === 'in' ? 'text-green-600' : 'text-red-600'}">${l.type === 'in' ? '🟢 إيراد' : '🔴 مصروف'}</td>
+                    <td class="p-2.5">${l.title}</td>
+                    <td class="p-2.5 font-bold">${l.amount} جنيه</td>
+                    <td class="p-2.5 text-gray-500 text-xs">${l.time.toLocaleString('ar-EG')}</td>
+                </tr>
+            `).join('');
+        }
+
+        async function processTreasuryTransfer() {
+            if (!confirm(`هل أنت متأكد من إجراء ترحيل وتصفية الخزنة الآن؟\n\nإجمالي الوارد: ${lastTreasuryData.totalIn} ج\nإجمالي المصروفات: ${lastTreasuryData.totalOut} ج\nالربح الفعلي/المستلم: ${lastTreasuryData.balance} ج`)) return;
+
+            document.getElementById('printArea').style.display = 'none';
+            document.getElementById('printTreasuryArea').style.display = 'block';
+
+            document.getElementById('tPrintTime').innerText = `التاريخ: ${new Date().toLocaleString('ar-EG')}`;
+            document.getElementById('tPrintIn').innerText = `${lastTreasuryData.totalIn} ج`;
+            document.getElementById('tPrintOut').innerText = `${lastTreasuryData.totalOut} ج`;
+            document.getElementById('tPrintBalance').innerText = `${lastTreasuryData.balance} ج`;
+
+            window.print();
+
+            if (_supabase) {
+                try {
+                    await _supabase.from('expenses').delete().neq('id', 0);
+                    await _supabase.from('orders').delete().neq('id', 0);
+                } catch(e){}
+            }
+            alert('تم تصفية الخزنة وترحيل الأرباح بنجاح! جاهز للشيفت الجديد 👍');
+            fetchTreasuryLogs(); fetchExpenses(); fetchOrders();
+        }
+    </script>
+</body>
+</html>
